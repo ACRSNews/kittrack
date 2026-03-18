@@ -1,1115 +1,883 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KitTrack · ACRS Outreach</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KitTrack · ACRS Outreach</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --pink:#e8197d;--pink-light:#fce8f3;--pink-faint:#fdf3f9;
+    --ink:#1a1225;--ink-mid:#4a3f58;--ink-light:#8b7a9a;
+    --border:#e8dff0;--surface:#faf8fc;--white:#ffffff;
+    --green:#1ab86c;--green-faint:#e8f9f1;
+    --amber:#f5a623;--amber-faint:#fef6e8;
+    --red:#e83419;--red-faint:#fdecea;
+    --purple:#7b61ff;--purple-faint:#f0eeff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--surface);color:var(--ink);min-height:100vh}
+  button,input,select,textarea{font-family:inherit}
+  nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+  .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;color:var(--ink);cursor:pointer}
+  .nav-pill{width:10px;height:10px;border-radius:50%;background:var(--pink);flex-shrink:0}
+  .nav-tabs{display:flex;gap:4px}
+  .nav-tab{padding:6px 14px;border-radius:8px;border:none;font-size:14px;font-weight:400;background:transparent;color:var(--ink-mid);cursor:pointer;transition:all 0.15s}
+  .nav-tab.active{font-weight:600;background:var(--pink-light);color:var(--pink)}
+  .nav-badge{background:var(--pink);color:white;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-left:6px}
+  .page{max-width:900px;margin:0 auto;padding:32px 24px}
+  .page-wide{max-width:1100px;margin:0 auto;padding:32px 24px}
+  .row{display:flex;gap:16px;flex-wrap:wrap}
+  .hidden{display:none!important}
+  .card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px}
+  .kit-card{background:var(--white);border:2px solid var(--border);border-radius:20px;padding:24px;flex:1;min-width:220px}
+  .kit-card.available{border-color:var(--green)}
+  .kit-card.needs-attention{border-color:var(--amber)}
+  .status-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:0.3px;text-transform:uppercase}
+  .status-badge.available{background:var(--green-faint);color:var(--green)}
+  .status-badge.checked-out{background:#f0edf5;color:var(--ink-light)}
+  .status-badge.needs-attention{background:var(--amber-faint);color:var(--amber)}
+  .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .status-dot.available{background:var(--green)}
+  .status-dot.checked-out{background:var(--ink-light)}
+  .status-dot.needs-attention{background:var(--amber)}
+  .btn-primary{background:var(--pink);color:white;border:none;border-radius:10px;padding:12px 24px;font-size:15px;font-weight:600;width:100%;cursor:pointer;transition:background 0.15s}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+  .btn-primary:not(:disabled):hover{background:#c4156a}
+  .btn-ghost{background:transparent;color:var(--ink-mid);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn-ghost:hover{background:var(--surface)}
+  .btn-green{background:var(--green);color:white;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn-pink-sm{background:var(--pink);color:white;border:none;border-radius:8px;padding:8px 18px;font-size:14px;font-weight:600;cursor:pointer}
+  .btn-download{background:var(--purple-faint);color:var(--purple);border:1.5px solid var(--purple);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .btn-download:hover{background:var(--purple);color:white}
+  .btn-danger{background:var(--red-faint);color:var(--red);border:1.5px solid var(--red);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
+  .form-group{margin-bottom:18px}
+  label{font-size:13px;font-weight:600;color:var(--ink-mid);display:block;margin-bottom:6px}
+  input[type=text],input[type=email],input[type=date],input[type=time],select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:15px;color:var(--ink);background:var(--white);outline:none;transition:border-color 0.15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--pink)}
+  textarea{resize:vertical;min-height:80px}
+  select{appearance:none;cursor:pointer}
+  input[readonly]{background:var(--surface);color:var(--ink-mid)}
+  .toggle-group{display:flex;gap:8px;flex-wrap:wrap}
+  .toggle-btn{padding:8px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--ink);font-size:14px;font-weight:400;cursor:pointer;transition:all 0.15s}
+  .toggle-btn.selected{border-color:var(--pink);background:var(--pink-light);color:var(--pink);font-weight:600}
+  /* mobile-stacked condition buttons */
+  .cond-group{display:flex;gap:8px;flex-direction:column}
+  @media(min-width:480px){.cond-group{flex-direction:row}}
+  .cond-btn{flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center}
+  .cond-btn.selected{border-color:var(--pink);background:var(--pink-light);color:var(--pink)}
+  .toggle-half{flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s}
+  .toggle-half.selected{border-color:var(--pink);background:var(--pink-light);color:var(--pink)}
+  .success-box{background:var(--green-faint);border:1.5px solid var(--green);border-radius:14px;padding:32px 24px;text-align:center}
+  .success-box h2{font-size:20px;font-weight:700;margin-bottom:8px}
+  .success-box p{font-size:14px;color:var(--ink-mid);margin-bottom:20px}
+  .badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600}
+  .badge.pending{background:var(--amber-faint);color:var(--amber)}
+  .badge.approved{background:var(--green-faint);color:var(--green)}
+  .badge.denied{background:var(--red-faint);color:var(--red)}
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(26,18,37,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:999;padding:16px}
+  .modal-box{background:var(--white);border-radius:20px;padding:36px 32px;width:100%;max-width:340px;box-shadow:0 24px 60px rgba(0,0,0,0.18);text-align:center}
+  .pin-row{display:flex;gap:12px;justify-content:center;margin-bottom:20px}
+  .pin-input{width:52px;height:56px;text-align:center;font-size:22px;font-weight:700;border:2px solid var(--border);border-radius:12px;outline:none;color:var(--ink);transition:border-color 0.15s}
+  .pin-input:focus{border-color:var(--pink)}
+  .pin-input.error{border-color:var(--red);background:var(--red-faint)}
+  /* CONFIRM MODAL */
+  .confirm-box{background:var(--white);border-radius:20px;padding:32px 28px;width:100%;max-width:380px;box-shadow:0 24px 60px rgba(0,0,0,0.18)}
+  .confirm-box h3{font-size:17px;font-weight:700;margin-bottom:8px}
+  .confirm-box p{font-size:14px;color:var(--ink-mid);margin-bottom:24px;line-height:1.5}
+  .action-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+  .action-card{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:border-color 0.15s,box-shadow 0.15s}
+  .action-card:hover{border-color:var(--pink);box-shadow:0 4px 20px rgba(232,25,125,0.08)}
+  .qr-hint{background:var(--pink-faint);border:1px dashed var(--pink);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px}
+  .tab-bar{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:4px;flex-wrap:wrap}
+  .log-item{display:flex;align-items:flex-start;gap:16px;padding:14px 20px!important}
+  .cal-box{background:var(--purple-faint);border:1.5px solid var(--purple);border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap}
+  h1{font-size:26px;font-weight:800;color:var(--ink);margin-bottom:4px;letter-spacing:-0.5px}
+  h2{font-size:20px;font-weight:700;color:var(--ink);margin-bottom:16px}
+  .lbl{font-size:13px;font-weight:600;color:var(--pink);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+  .empty-state{color:var(--ink-light);font-size:14px;padding:20px 0;text-align:center;line-height:1.6}
+  .info-note{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--ink-mid);margin-bottom:16px}
+  /* persist indicator */
+  .persist-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px}
+</style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel">
-import { useState, useEffect } from "react";
 
-// ─── MOCK DATA ────────────────────────────────────────────────────────────────
-const STAFF = ["Nate", "Jenni", "Allice", "Hazel", "Marcus", "Sofia", "Ray", "Dana"];
+<nav>
+  <div class="nav-logo" onclick="go('home')"><div class="nav-pill"></div>KitTrack</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-home" onclick="go('home')">🏠 Home</button>
+    <button class="nav-tab" id="tab-admin" onclick="adminClick()">Admin <span class="nav-badge hidden" id="pending-badge">0</span></button>
+  </div>
+</nav>
 
-const INITIAL_KITS = [
-  {
-    id: "kit-a",
-    name: "Outreach Kit A",
-    status: "available", // available | checked-out | needs-attention
-    checkedOutTo: null,
-    checkedOutSince: null,
-    event: null,
-    returnDate: null,
-    condition: "good",
-    lastVerified: "2026-02-28",
-    items: ["Banner (1)", "Tablecloth (2)", "Clipboards (3)", "Pens (10)", "Brochures (50)", "Name Tags (20)"],
-  },
-  {
-    id: "kit-b",
-    name: "Outreach Kit B",
-    status: "available",
-    checkedOutTo: null,
-    checkedOutSince: null,
-    event: null,
-    returnDate: null,
-    condition: "good",
-    lastVerified: "2026-03-01",
-    items: ["Pop-up Canopy (1)", "Tablecloth (1)", "Clipboards (2)", "Pens (8)", "Brochures (30)", "Laptop Stand (1)"],
-  },
-];
-
-const INITIAL_REQUESTS = [
-  {
-    id: "req-1",
-    name: "Sofia",
-    program: "Health Outreach",
-    event: "South Park Health Fair",
-    dateNeeded: "2026-03-15",
-    dateReturn: "2026-03-15",
-    notes: "Bilingual materials preferred",
-    status: "pending",
-    assignedKit: null,
-    submittedAt: "2026-03-05T14:22:00",
-  },
-];
-
-const INITIAL_TRANSACTIONS = [
-  { id: "t1", type: "checkout", kit: "Outreach Kit A", person: "Ray", event: "Capitol Hill Tabling", timestamp: "2026-03-01T09:00:00", notes: "" },
-  { id: "t2", type: "return", kit: "Outreach Kit A", person: "Ray", event: "Capitol Hill Tabling", timestamp: "2026-03-01T17:30:00", notes: "All good" },
-];
-
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-const fmt = (iso) => {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-};
-const fmtTime = (iso) => {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + " · " + d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-};
-
-// ─── STYLES ──────────────────────────────────────────────────────────────────
-const G = {
-  pink: "#e8197d",
-  pinkDark: "#c4156a",
-  pinkLight: "#fce8f3",
-  pinkFaint: "#fdf3f9",
-  ink: "#1a1225",
-  inkMid: "#4a3f58",
-  inkLight: "#8b7a9a",
-  border: "#e8dff0",
-  surface: "#faf8fc",
-  white: "#ffffff",
-  green: "#1ab86c",
-  greenFaint: "#e8f9f1",
-  amber: "#f5a623",
-  amberFaint: "#fef6e8",
-  red: "#e83419",
-  redFaint: "#fdecea",
-};
-
-const css = {
-  app: {
-    fontFamily: "'DM Sans', system-ui, sans-serif",
-    background: G.surface,
-    minHeight: "100vh",
-    color: G.ink,
-  },
-  // Nav
-  nav: {
-    background: G.white,
-    borderBottom: `1px solid ${G.border}`,
-    padding: "0 24px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    height: 60,
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-  },
-  navLogo: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    fontWeight: 700,
-    fontSize: 17,
-    color: G.ink,
-    letterSpacing: "-0.3px",
-  },
-  navPill: {
-    width: 10,
-    height: 10,
-    borderRadius: "50%",
-    background: G.pink,
-  },
-  navTabs: { display: "flex", gap: 4 },
-  navTab: (active) => ({
-    padding: "6px 14px",
-    borderRadius: 8,
-    border: "none",
-    cursor: "pointer",
-    fontSize: 14,
-    fontWeight: active ? 600 : 400,
-    background: active ? G.pinkLight : "transparent",
-    color: active ? G.pink : G.inkMid,
-    transition: "all 0.15s",
-  }),
-  // Layout
-  page: { maxWidth: 900, margin: "0 auto", padding: "32px 24px" },
-  pageWide: { maxWidth: 1100, margin: "0 auto", padding: "32px 24px" },
-  // Cards
-  card: {
-    background: G.white,
-    border: `1px solid ${G.border}`,
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 16,
-  },
-  cardTitle: { fontSize: 16, fontWeight: 700, color: G.ink, marginBottom: 4 },
-  cardSub: { fontSize: 13, color: G.inkLight, marginBottom: 0 },
-  // Kit cards
-  kitCard: (status) => ({
-    background: G.white,
-    border: `2px solid ${status === "available" ? G.green : status === "needs-attention" ? G.amber : G.border}`,
-    borderRadius: 20,
-    padding: 24,
-    flex: 1,
-    minWidth: 260,
-    position: "relative",
-    overflow: "hidden",
-  }),
-  kitStatus: (status) => ({
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    padding: "4px 12px",
-    borderRadius: 20,
-    fontSize: 12,
-    fontWeight: 600,
-    letterSpacing: "0.3px",
-    textTransform: "uppercase",
-    background: status === "available" ? G.greenFaint : status === "needs-attention" ? G.amberFaint : "#f0edf5",
-    color: status === "available" ? G.green : status === "needs-attention" ? G.amber : G.inkLight,
-  }),
-  statusDot: (status) => ({
-    width: 7,
-    height: 7,
-    borderRadius: "50%",
-    background: status === "available" ? G.green : status === "needs-attention" ? G.amber : G.inkLight,
-  }),
-  // Buttons
-  btnPrimary: {
-    background: G.pink,
-    color: G.white,
-    border: "none",
-    borderRadius: 10,
-    padding: "12px 24px",
-    fontSize: 15,
-    fontWeight: 600,
-    cursor: "pointer",
-    width: "100%",
-    transition: "background 0.15s",
-    letterSpacing: "-0.2px",
-  },
-  btnSecondary: {
-    background: "transparent",
-    color: G.pink,
-    border: `1.5px solid ${G.pink}`,
-    borderRadius: 10,
-    padding: "10px 20px",
-    fontSize: 14,
-    fontWeight: 600,
-    cursor: "pointer",
-    transition: "all 0.15s",
-  },
-  btnSmall: (variant = "pink") => ({
-    background: variant === "pink" ? G.pink : variant === "green" ? G.green : variant === "ghost" ? "transparent" : "#f0edf5",
-    color: variant === "ghost" ? G.inkMid : G.white,
-    border: variant === "ghost" ? `1px solid ${G.border}` : "none",
-    borderRadius: 8,
-    padding: "6px 14px",
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-  }),
-  // Form
-  label: { fontSize: 13, fontWeight: 600, color: G.inkMid, display: "block", marginBottom: 6 },
-  input: {
-    width: "100%",
-    border: `1.5px solid ${G.border}`,
-    borderRadius: 10,
-    padding: "10px 14px",
-    fontSize: 15,
-    color: G.ink,
-    background: G.white,
-    outline: "none",
-    boxSizing: "border-box",
-    fontFamily: "inherit",
-    transition: "border-color 0.15s",
-  },
-  select: {
-    width: "100%",
-    border: `1.5px solid ${G.border}`,
-    borderRadius: 10,
-    padding: "10px 14px",
-    fontSize: 15,
-    color: G.ink,
-    background: G.white,
-    outline: "none",
-    boxSizing: "border-box",
-    fontFamily: "inherit",
-    appearance: "none",
-    cursor: "pointer",
-  },
-  textarea: {
-    width: "100%",
-    border: `1.5px solid ${G.border}`,
-    borderRadius: 10,
-    padding: "10px 14px",
-    fontSize: 15,
-    color: G.ink,
-    background: G.white,
-    outline: "none",
-    boxSizing: "border-box",
-    fontFamily: "inherit",
-    resize: "vertical",
-    minHeight: 80,
-  },
-  formGroup: { marginBottom: 18 },
-  // Misc
-  row: { display: "flex", gap: 16, flexWrap: "wrap" },
-  badge: (c) => ({
-    display: "inline-block",
-    padding: "2px 10px",
-    borderRadius: 20,
-    fontSize: 12,
-    fontWeight: 600,
-    background: c === "pending" ? G.amberFaint : c === "approved" ? G.greenFaint : c === "denied" ? G.redFaint : "#f0edf5",
-    color: c === "pending" ? G.amber : c === "approved" ? G.green : c === "denied" ? G.red : G.inkMid,
-  }),
-  divider: { borderTop: `1px solid ${G.border}`, margin: "20px 0" },
-  h1: { fontSize: 26, fontWeight: 800, color: G.ink, marginBottom: 4, letterSpacing: "-0.5px" },
-  h2: { fontSize: 20, fontWeight: 700, color: G.ink, marginBottom: 16, letterSpacing: "-0.3px" },
-  hint: { fontSize: 13, color: G.inkLight, marginTop: 4 },
-  success: {
-    background: G.greenFaint,
-    border: `1.5px solid ${G.green}`,
-    borderRadius: 14,
-    padding: "24px",
-    textAlign: "center",
-  },
-};
-
-// ─── QR QUICK ACTION (simulated scan landing) ────────────────────────────────
-function QRCheckPage({ kits, onAction, onBack }) {
-  const [step, setStep] = useState("select-kit"); // select-kit | select-action | select-person | confirm | done
-  const [selectedKit, setSelectedKit] = useState(null);
-  const [action, setAction] = useState(null);
-  const [person, setPerson] = useState("");
-  const [event, setEvent] = useState("");
-  const [notes, setNotes] = useState("");
-  const [issues, setIssues] = useState(false);
-
-  const kit = kits.find((k) => k.id === selectedKit);
-
-  const handleSubmit = () => {
-    onAction({ kitId: selectedKit, action, person, event, notes: issues ? notes : "", timestamp: new Date().toISOString() });
-    setStep("done");
-  };
-
-  if (step === "done") {
-    return (
-      <div style={css.page}>
-        <div style={css.success}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>{action === "checkout" ? "🧳" : "✅"}</div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: G.ink, marginBottom: 8 }}>
-            {action === "checkout" ? `${kit?.name} is checked out!` : `${kit?.name} returned — thank you!`}
-          </div>
-          <div style={{ fontSize: 14, color: G.inkMid, marginBottom: 20 }}>
-            {action === "checkout" ? `Logged to ${person} · ${event}` : `Return logged for ${person}`}
-          </div>
-          {action === "return" && (
-            <button style={{ ...css.btnSmall("pink"), padding: "10px 24px", fontSize: 14 }} onClick={() => { setStep("post-report"); }}>
-              Quick Post-Event Report →
-            </button>
-          )}
-          {action !== "return" && (
-            <button style={{ ...css.btnSmall("ghost"), padding: "10px 24px", fontSize: 14 }} onClick={onBack}>
-              Done
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (step === "post-report") {
-    return <PostEventReport prefill={{ person, event, kit: kit?.name }} onSubmit={() => setStep("report-done")} onBack={onBack} />;
-  }
-  if (step === "report-done") {
-    return (
-      <div style={css.page}>
-        <div style={css.success}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>🎉</div>
-          <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>All done!</div>
-          <div style={{ fontSize: 14, color: G.inkMid, marginBottom: 20 }}>Return and post-event report saved.</div>
-          <button style={{ ...css.btnSmall("ghost"), padding: "10px 24px", fontSize: 14 }} onClick={onBack}>Back to home</button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div style={css.page}>
-      {/* Header */}
-      <button onClick={onBack} style={{ ...css.btnSmall("ghost"), marginBottom: 24 }}>← Back</button>
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ ...css.h1, fontSize: 22 }}>
-          {step === "select-kit" && "Which kit?"}
-          {step === "select-action" && kit?.name}
-          {step === "select-person" && (action === "checkout" ? "Checking out" : "Returning")}
-        </div>
-        <div style={css.cardSub}>
-          {step === "select-kit" && "Tap the kit you're using"}
-          {step === "select-action" && `Status: ${kit?.status === "available" ? "Available" : "Checked out to " + kit?.checkedOutTo}`}
-          {step === "select-person" && kit?.name}
-        </div>
-      </div>
-
-      {/* Step: Select Kit */}
-      {step === "select-kit" && (
-        <div style={css.row}>
-          {kits.map((k) => (
-            <div
-              key={k.id}
-              onClick={() => { setSelectedKit(k.id); setStep("select-action"); }}
-              style={{
-                ...css.kitCard(k.status),
-                cursor: "pointer",
-                flex: "1 1 200px",
-                transition: "transform 0.1s",
-              }}
-            >
-              <div style={{ fontSize: 32, marginBottom: 10 }}>🧳</div>
-              <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 8 }}>{k.name}</div>
-              <div style={css.kitStatus(k.status)}>
-                <span style={css.statusDot(k.status)} />
-                {k.status === "available" ? "Available" : k.status === "checked-out" ? `Out · ${k.checkedOutTo}` : "Needs Attention"}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Step: Select Action */}
-      {step === "select-action" && kit && (
-        <div style={css.row}>
-          {[
-            { id: "checkout", icon: "🧳", label: "Check Out", sub: "I'm taking this kit", disabled: kit.status === "checked-out" },
-            { id: "return", icon: "↩️", label: "Return", sub: "I'm bringing it back", disabled: kit.status === "available" },
-          ].map((opt) => (
-            <div
-              key={opt.id}
-              onClick={() => { if (!opt.disabled) { setAction(opt.id); setStep("select-person"); } }}
-              style={{
-                ...css.card,
-                flex: "1 1 160px",
-                textAlign: "center",
-                cursor: opt.disabled ? "not-allowed" : "pointer",
-                opacity: opt.disabled ? 0.4 : 1,
-                border: `2px solid ${G.border}`,
-                transition: "border-color 0.15s",
-                margin: 0,
-              }}
-            >
-              <div style={{ fontSize: 36, marginBottom: 10 }}>{opt.icon}</div>
-              <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>{opt.label}</div>
-              <div style={{ fontSize: 13, color: G.inkLight }}>{opt.sub}</div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Step: Person + details */}
-      {step === "select-person" && (
-        <div style={css.card}>
-          <div style={css.formGroup}>
-            <label style={css.label}>Your name</label>
-            <input
-              style={css.input}
-              placeholder="Type your name"
-              value={person}
-              onChange={(e) => setPerson(e.target.value)}
-              autoFocus
-            />
-          </div>
-
-          {action === "checkout" && (
-            <div style={css.formGroup}>
-              <label style={css.label}>Event or program</label>
-              <input style={css.input} placeholder="e.g. South Park Health Fair" value={event} onChange={(e) => setEvent(e.target.value)} />
-            </div>
-          )}
-
-          {action === "return" && (
-            <div style={css.formGroup}>
-              <label style={css.label}>Any issues?</label>
-              <div style={{ display: "flex", gap: 8 }}>
-                {["No issues", "Something to flag"].map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => setIssues(opt !== "No issues")}
-                    style={{
-                      flex: 1,
-                      padding: "10px",
-                      borderRadius: 8,
-                      border: `1.5px solid ${(opt !== "No issues") === issues ? G.pink : G.border}`,
-                      background: (opt !== "No issues") === issues ? G.pinkLight : G.white,
-                      color: (opt !== "No issues") === issues ? G.pink : G.ink,
-                      fontSize: 14,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                    }}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-              {issues && (
-                <textarea
-                  style={{ ...css.textarea, marginTop: 10 }}
-                  placeholder="What's missing or damaged?"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                />
-              )}
-            </div>
-          )}
-
-          <button
-            style={{ ...css.btnPrimary, opacity: !person || (action === "checkout" && !event) ? 0.5 : 1 }}
-            disabled={!person || (action === "checkout" && !event)}
-            onClick={handleSubmit}
-          >
-            {action === "checkout" ? "Confirm Check-Out →" : "Confirm Return →"}
-          </button>
-        </div>
-      )}
+<!-- PASSCODE MODAL -->
+<div class="modal-overlay hidden" id="pin-modal">
+  <div class="modal-box">
+    <div style="font-size:32px;margin-bottom:12px">🔒</div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:6px">Admin Access</div>
+    <div style="font-size:13px;color:var(--ink-light);margin-bottom:24px">Enter your 4-digit passcode</div>
+    <div class="pin-row">
+      <input class="pin-input" id="p0" type="password" inputmode="numeric" maxlength="1" oninput="pi(0)" onkeydown="pk(0,event)">
+      <input class="pin-input" id="p1" type="password" inputmode="numeric" maxlength="1" oninput="pi(1)" onkeydown="pk(1,event)">
+      <input class="pin-input" id="p2" type="password" inputmode="numeric" maxlength="1" oninput="pi(2)" onkeydown="pk(2,event)">
+      <input class="pin-input" id="p3" type="password" inputmode="numeric" maxlength="1" oninput="pi(3)" onkeydown="pk(3,event)">
     </div>
-  );
-}
+    <div id="pin-err" class="hidden" style="font-size:13px;color:var(--red);font-weight:600;margin-bottom:16px">Incorrect — try again</div>
+    <div style="font-size:12px;color:var(--ink-light);margin-bottom:16px">Passcode resets when you close or refresh this page.</div>
+    <button class="btn-ghost" style="width:100%;padding:10px" onclick="closePin()">Cancel</button>
+  </div>
+</div>
 
-// ─── REQUEST FORM ─────────────────────────────────────────────────────────────
-function RequestForm({ onSubmit, onBack }) {
-  const [form, setForm] = useState({ name: "", email: "", program: "", event: "", dateNeeded: "", dateReturn: "", notes: "" });
-  const [done, setDone] = useState(false);
+<!-- RETURN CONFIRM MODAL -->
+<div class="modal-overlay hidden" id="confirm-modal">
+  <div class="confirm-box">
+    <h3>Confirm return</h3>
+    <p id="confirm-msg"></p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn-primary" style="flex:1" onclick="confirmReturn(true)">Yes, that's me →</button>
+      <button class="btn-ghost" style="flex:1;padding:12px" onclick="confirmReturn(false)">Not me</button>
+    </div>
+  </div>
+</div>
 
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-  const valid = form.name && form.program && form.event && form.dateNeeded;
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay hidden" id="del-modal">
+  <div class="confirm-box">
+    <h3>Delete this entry?</h3>
+    <p>This can't be undone. The entry will be permanently removed.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn-danger" style="flex:1;padding:12px" onclick="confirmDelete(true)">Delete</button>
+      <button class="btn-ghost" style="flex:1;padding:12px" onclick="confirmDelete(false)">Cancel</button>
+    </div>
+  </div>
+</div>
 
-  const handleSubmit = () => {
-    onSubmit({ ...form, id: "req-" + Date.now(), status: "pending", submittedAt: new Date().toISOString(), assignedKit: null });
-    setDone(true);
-  };
+<!-- HOME -->
+<div id="v-home" class="page">
+  <div style="margin-bottom:36px;padding-top:8px">
+    <div class="lbl">ACRS Outreach</div>
+    <h1 style="font-size:30px">Outreach Kit Portal</h1>
+    <div style="font-size:15px;color:var(--ink-mid);margin-top:6px" id="home-status">Both kits are available right now.</div>
+  </div>
+  <div class="row" style="margin-bottom:32px" id="home-kits"></div>
+  <h2>What do you need?</h2>
+  <div class="action-grid">
+    <div class="action-card" onclick="go('request')">
+      <div style="font-size:28px">📬</div>
+      <div style="font-weight:700;font-size:15px">Request a Kit</div>
+      <div style="font-size:13px;color:var(--ink-light);line-height:1.4">Submit a request for an upcoming event</div>
+      <div style="font-size:13px;font-weight:600;color:var(--pink)">Get started →</div>
+    </div>
+    <div class="action-card" onclick="go('cio')">
+      <div style="font-size:28px">🔄</div>
+      <div style="font-weight:700;font-size:15px">Check In / Out</div>
+      <div style="font-size:13px;color:var(--ink-light);line-height:1.4">Quick tap to log a pickup or return</div>
+      <div style="font-size:13px;font-weight:600;color:var(--green)">Get started →</div>
+    </div>
+    <div class="action-card" onclick="go('report')">
+      <div style="font-size:28px">📊</div>
+      <div style="font-weight:700;font-size:15px">Post-Event Report</div>
+      <div style="font-size:13px;color:var(--ink-light);line-height:1.4">2-minute wrap-up after your event</div>
+      <div style="font-size:13px;font-weight:600;color:var(--purple)">Get started →</div>
+    </div>
+  </div>
+  <div class="qr-hint">
+    <div style="font-size:24px">📱</div>
+    <div>
+      <div style="font-size:14px;font-weight:600;color:var(--ink)">QR codes make check-in/out faster</div>
+      <div style="font-size:13px;color:var(--ink-mid)">Scan the code inside the kit lid to jump straight here.</div>
+    </div>
+  </div>
+</div>
 
-  if (done) {
-    return (
-      <div style={css.page}>
-        <div style={css.success}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>📬</div>
-          <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Request submitted!</div>
-          <div style={{ fontSize: 14, color: G.inkMid, marginBottom: 20 }}>
-            Someone will confirm your kit assignment by email. You don't need to do anything else right now.
-          </div>
-          <button style={{ ...css.btnSmall("ghost"), padding: "10px 24px", fontSize: 14 }} onClick={onBack}>Back to home</button>
-        </div>
+<!-- REQUEST -->
+<div id="v-request" class="page hidden">
+  <button class="btn-ghost" style="margin-bottom:24px" onclick="go('home')">← Back</button>
+  <div style="margin-bottom:28px"><h1>Request Outreach Materials</h1><div style="font-size:13px;color:var(--ink-light)">You don't need to pick a specific kit — we'll assign one.</div></div>
+  <div id="req-form">
+    <div class="card">
+      <div class="row">
+        <div class="form-group" style="flex:1"><label>Your name *</label><input type="text" id="rq-name" placeholder="Full name"></div>
+        <div class="form-group" style="flex:1"><label>Email</label><input type="email" id="rq-email" placeholder="you@acrs.org"></div>
       </div>
-    );
-  }
-
-  return (
-    <div style={css.page}>
-      <button onClick={onBack} style={{ ...css.btnSmall("ghost"), marginBottom: 24 }}>← Back</button>
-      <div style={{ marginBottom: 28 }}>
-        <div style={css.h1}>Request Outreach Materials</div>
-        <div style={css.cardSub}>You don't need to pick a specific kit — we'll assign one for you.</div>
+      <div class="row">
+        <div class="form-group" style="flex:1"><label>Department *</label><input type="text" id="rq-dept" placeholder="e.g. Behavioral Health"></div>
+        <div class="form-group" style="flex:1"><label>Program *</label><input type="text" id="rq-prog" placeholder="e.g. Health Outreach"></div>
       </div>
+      <div class="form-group"><label>Event name *</label><input type="text" id="rq-event" placeholder="e.g. Beacon Hill Community Fair"></div>
+      <div class="form-group"><label>Event location</label><input type="text" id="rq-loc" placeholder="e.g. Seward Park, 5902 Lake Washington Blvd S"></div>
+      <div class="row">
+        <div class="form-group" style="flex:1"><label>Date needed *</label><input type="date" id="rq-date"></div>
+        <div class="form-group" style="flex:1"><label>Event start time</label><input type="time" id="rq-time"></div>
+        <div class="form-group" style="flex:1"><label>Return date/time</label><input type="date" id="rq-ret"> <input type="time" id="rq-ret-time" style="margin-top:6px"></div>
+      </div>
+      <div class="form-group">
+        <label>Who are you connecting with at this event? *</label>
+        <textarea id="rq-population" placeholder="e.g. Unhoused community members, recent immigrants, seniors, general public at a health fair..."></textarea>
+      </div>
+      <div class="form-group"><label>Anything else? <span style="font-weight:400;color:var(--ink-light)">(optional)</span></label><textarea id="rq-notes" placeholder="Special needs, bilingual materials, large crowd..."></textarea></div>
+      <button class="btn-primary" onclick="submitReq()">Submit Request →</button>
+    </div>
+  </div>
+  <div id="req-ok" class="hidden">
+    <div class="success-box">
+      <div style="font-size:40px;margin-bottom:12px">📬</div>
+      <h2>Request submitted!</h2>
+      <p>Someone will confirm your kit assignment by email.</p>
+      <button class="btn-ghost" onclick="go('home')">Back to home</button>
+    </div>
+    <div class="cal-box">
+      <div>
+        <div style="font-weight:700;font-size:14px;color:var(--purple);margin-bottom:2px">📅 Add to your calendar</div>
+        <div style="font-size:13px;color:var(--ink-mid)">Download a calendar reminder for this event</div>
+      </div>
+      <button class="btn-download" onclick="downloadCal()">⬇ Download .ics</button>
+    </div>
+  </div>
+</div>
 
-      <div style={css.card}>
-        <div style={css.row}>
-          <div style={{ ...css.formGroup, flex: 1 }}>
-            <label style={css.label}>Your name</label>
-            <input style={css.input} value={form.name} onChange={set("name")} placeholder="Full name" />
-          </div>
-          <div style={{ ...css.formGroup, flex: 1 }}>
-            <label style={css.label}>Email</label>
-            <input style={css.input} value={form.email} onChange={set("email")} placeholder="you@acrs.org" type="email" />
-          </div>
-        </div>
-
-        <div style={css.formGroup}>
-          <label style={css.label}>Program / team</label>
-          <input style={css.input} value={form.program} onChange={set("program")} placeholder="e.g. Health Outreach, Immigration Services" />
-        </div>
-
-        <div style={css.formGroup}>
-          <label style={css.label}>Event name</label>
-          <input style={css.input} value={form.event} onChange={set("event")} placeholder="e.g. Beacon Hill Community Fair" />
-        </div>
-
-        <div style={css.row}>
-          <div style={{ ...css.formGroup, flex: 1 }}>
-            <label style={css.label}>Date needed</label>
-            <input style={css.input} value={form.dateNeeded} onChange={set("dateNeeded")} type="date" />
-          </div>
-          <div style={{ ...css.formGroup, flex: 1 }}>
-            <label style={css.label}>Return date</label>
-            <input style={css.input} value={form.dateReturn} onChange={set("dateReturn")} type="date" />
-          </div>
-        </div>
-
-        <div style={css.formGroup}>
-          <label style={css.label}>Anything else we should know? <span style={{ fontWeight: 400, color: G.inkLight }}>(optional)</span></label>
-          <textarea style={css.textarea} value={form.notes} onChange={set("notes")} placeholder="Special needs, large crowd expected, bilingual materials needed, etc." />
-        </div>
-
-        <button style={{ ...css.btnPrimary, opacity: valid ? 1 : 0.5 }} disabled={!valid} onClick={handleSubmit}>
-          Submit Request →
-        </button>
+<!-- CHECK IN/OUT -->
+<div id="v-cio" class="page hidden">
+  <button class="btn-ghost" style="margin-bottom:24px" onclick="go('home')">← Back</button>
+  <div id="cio-s1">
+    <div style="margin-bottom:28px"><h1 style="font-size:22px">Which kit?</h1><div style="font-size:13px;color:var(--ink-light)">Tap the kit you're using</div></div>
+    <div class="row" id="cio-kits"></div>
+  </div>
+  <div id="cio-s2" class="hidden">
+    <div style="margin-bottom:28px"><h1 style="font-size:22px" id="cio-kit-name"></h1><div style="font-size:13px;color:var(--ink-light)" id="cio-kit-stat"></div></div>
+    <div class="row">
+      <div class="card" id="cio-co-btn" style="flex:1;text-align:center;cursor:pointer;border:2px solid var(--border);margin:0" onclick="pickAction('checkout')">
+        <div style="font-size:36px;margin-bottom:10px">🧳</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:4px">Check Out</div>
+        <div style="font-size:13px;color:var(--ink-light)">I'm taking this kit</div>
+      </div>
+      <div class="card" id="cio-ret-btn" style="flex:1;text-align:center;cursor:pointer;border:2px solid var(--border);margin:0" onclick="pickAction('return')">
+        <div style="font-size:36px;margin-bottom:10px">↩️</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:4px">Return</div>
+        <div style="font-size:13px;color:var(--ink-light)">I'm bringing it back</div>
       </div>
     </div>
-  );
+  </div>
+  <div id="cio-s3" class="hidden">
+    <div style="margin-bottom:28px"><h1 style="font-size:22px" id="cio-act-title"></h1><div style="font-size:13px;color:var(--ink-light)" id="cio-act-sub"></div></div>
+    <div class="card">
+      <div class="form-group"><label>Your name</label><input type="text" id="cio-name" placeholder="Type your name"></div>
+      <div class="form-group" id="cio-ev-grp"><label>Event or program</label><input type="text" id="cio-ev" placeholder="e.g. South Park Health Fair"></div>
+      <div class="form-group hidden" id="cio-iss-grp">
+        <label>Any issues?</label>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <button class="toggle-half selected" id="btn-no" onclick="setIss(false)">No issues</button>
+          <button class="toggle-half" id="btn-yes" onclick="setIss(true)">Something to flag</button>
+        </div>
+        <textarea id="cio-notes" class="hidden" placeholder="What's missing or damaged?"></textarea>
+      </div>
+      <button class="btn-primary" id="cio-go" onclick="doCheckInOut()">Confirm →</button>
+    </div>
+  </div>
+  <div id="cio-done" class="hidden">
+    <div class="success-box">
+      <div style="font-size:48px;margin-bottom:12px" id="cio-done-ico">✅</div>
+      <h2 id="cio-done-h"></h2>
+      <p id="cio-done-p"></p>
+      <button class="btn-pink-sm hidden" id="cio-rpt-btn" style="margin-bottom:12px" onclick="goPrefillReport()">Quick Post-Event Report →</button><br>
+      <button class="btn-ghost" style="margin-top:8px" onclick="go('home')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT -->
+<div id="v-report" class="page hidden">
+  <button class="btn-ghost" id="rpt-back" style="margin-bottom:24px" onclick="go('home')">← Back</button>
+  <div style="margin-bottom:28px"><h1>Post-Event Report</h1><div style="font-size:13px;color:var(--ink-light)">Just a few quick questions — about 2 minutes.</div></div>
+  <div id="rpt-form">
+    <div class="card">
+      <div class="row">
+        <div class="form-group" style="flex:1"><label>Your name *</label><input type="text" id="rpt-name" placeholder="Your name"></div>
+        <div class="form-group" style="flex:1"><label>Event *</label><input type="text" id="rpt-event" placeholder="Event name"></div>
+      </div>
+      <div class="form-group">
+        <label>Estimated attendance *</label>
+        <div class="toggle-group">
+          <button class="toggle-btn" onclick="pickAtt(this)">Under 20</button>
+          <button class="toggle-btn" onclick="pickAtt(this)">20–50</button>
+          <button class="toggle-btn" onclick="pickAtt(this)">50–100</button>
+          <button class="toggle-btn" onclick="pickAtt(this)">100–200</button>
+          <button class="toggle-btn" onclick="pickAtt(this)">200+</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Who did you connect with at this event? *</label>
+        <textarea id="rpt-population" placeholder="e.g. Unhoused community members, seniors, recent immigrants, general public..."></textarea>
+      </div>
+      <div class="form-group"><label>What went well? *</label><textarea id="rpt-well" placeholder="Community response, connections made..."></textarea></div>
+      <div class="form-group"><label>Anything to improve? <span style="font-weight:400;color:var(--ink-light)">(optional)</span></label><textarea id="rpt-imp" placeholder="Logistics, materials, timing..."></textarea></div>
+      <div class="form-group">
+        <label>Kit condition at return</label>
+        <div class="cond-group">
+          <button class="cond-btn selected" id="c-good" onclick="pickCond('good')">All good ✅</button>
+          <button class="cond-btn" id="c-minor" onclick="pickCond('minor')">Minor issue 🔧</button>
+          <button class="cond-btn" id="c-miss" onclick="pickCond('missing')">Something missing ⚠️</button>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="submitRpt()">Submit Report →</button>
+    </div>
+  </div>
+  <div id="rpt-ok" class="success-box hidden">
+    <div style="font-size:40px;margin-bottom:12px">🎉</div>
+    <h2>Report submitted!</h2>
+    <p>Thank you for helping us track these items — we need this for reporting for certain grants and to assess and evaluate our overall outreach program.</p>
+    <p style="font-size:13px;color:var(--ink-mid);margin-bottom:20px">If you'd like a copy of this data, message us at <a href="mailto:nateb@acrs.org" style="color:var(--pink)">nateb@acrs.org</a>.</p>
+    <button class="btn-ghost" onclick="go('home')">Back to home</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="v-admin" class="page-wide hidden">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1>Kit Dashboard</h1>
+      <div style="font-size:13px;color:var(--ink-light)"><span class="persist-dot"></span>Data saved in this browser · Admin view · ACRS Outreach</div>
+    </div>
+    <div id="adm-banner" class="hidden" style="background:var(--amber-faint);border:1.5px solid var(--amber);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;color:var(--amber)"></div>
+  </div>
+  <div class="row" style="margin-bottom:24px" id="adm-kits"></div>
+  <div class="tab-bar">
+    <button class="nav-tab active" id="adm-t1" onclick="admTab('req')">Requests</button>
+    <button class="nav-tab" id="adm-t2" onclick="admTab('reports')">Post-Event Reports</button>
+    <button class="nav-tab" id="adm-t3" onclick="admTab('log')">Activity Log</button>
+  </div>
+  <div id="adm-req"></div>
+  <div id="adm-reports" class="hidden"></div>
+  <div id="adm-log" class="hidden"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// STATE + PERSISTENCE via localStorage
+// ═══════════════════════════════════════════════════════════
+const CODE = "3639";
+let unlocked = false;
+let selKit=null, selAct=null, hasIss=false, rptCond="good", rptAtt="", prefill=null;
+let lastReq = null;
+let pendingDeleteType = null, pendingDeleteId = null;
+let pendingReturnData = null; // for return confirmation flow
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem("kittrack_v2");
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return null;
 }
 
-// ─── POST-EVENT REPORT ────────────────────────────────────────────────────────
-function PostEventReport({ prefill = {}, onSubmit, onBack }) {
-  const [form, setForm] = useState({
-    person: prefill.person || "",
-    event: prefill.event || "",
-    kit: prefill.kit || "",
-    attendance: "",
-    went: "",
-    improve: "",
-    kitCondition: "good",
+function saveState() {
+  try {
+    localStorage.setItem("kittrack_v2", JSON.stringify({ kits, reqs, txns, reports }));
+  } catch(e) {}
+}
+
+// Default data
+const DEFAULT = {
+  kits: [
+    {id:"kit-a",name:"Outreach Kit A",status:"available",checkedOutTo:null,checkedOutSince:null,event:null,lastVerified:"2026-02-28"},
+    {id:"kit-b",name:"Outreach Kit B",status:"available",checkedOutTo:null,checkedOutSince:null,event:null,lastVerified:"2026-03-01"}
+  ],
+  reqs: [
+    {id:"r1",name:"Sofia",program:"Health Outreach",event:"South Park Health Fair",location:"South Park Community Center",dateNeeded:"2026-03-15",startTime:"09:00",dateReturn:"2026-03-15",retTime:"17:00",population:"Families and seniors in the South Park neighborhood, many Spanish-speaking",notes:"Bilingual materials preferred",email:"sofia@acrs.org",status:"pending",assignedKit:null,submittedAt:"2026-03-05T14:22:00"}
+  ],
+  txns: [
+    {id:"t1",type:"checkout",kit:"Outreach Kit A",person:"Ray",event:"Capitol Hill Tabling",timestamp:"2026-03-01T09:00:00",notes:""},
+    {id:"t2",type:"return",kit:"Outreach Kit A",person:"Ray",event:"Capitol Hill Tabling",timestamp:"2026-03-01T17:30:00",notes:"All good"}
+  ],
+  reports: [
+    {id:"rpt1",name:"Ray",event:"Capitol Hill Tabling",attendance:"20–50",population:"General public, mostly young adults and working professionals",went:"Great foot traffic, handed out 30 brochures.",improve:"More pens next time.",kitCondition:"good",submittedAt:"2026-03-01T18:00:00"}
+  ]
+};
+
+const saved = loadState();
+let kits    = saved ? saved.kits    : JSON.parse(JSON.stringify(DEFAULT.kits));
+let reqs    = saved ? saved.reqs    : JSON.parse(JSON.stringify(DEFAULT.reqs));
+let txns    = saved ? saved.txns    : JSON.parse(JSON.stringify(DEFAULT.txns));
+let reports = saved ? saved.reports : JSON.parse(JSON.stringify(DEFAULT.reports));
+
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+function fmt(s){if(!s)return"—";return new Date(s).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+function fmtT(s){if(!s)return"—";const d=new Date(s);return d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})+" · "+d.toLocaleDateString("en-US",{month:"short",day:"numeric"})}
+function el(id){return document.getElementById(id)}
+
+// ═══════════════════════════════════════════════════════════
+// ROUTER
+// ═══════════════════════════════════════════════════════════
+function go(v) {
+  ["home","request","cio","report","admin"].forEach(x => el("v-"+x).classList.add("hidden"));
+  el("tab-home").classList.toggle("active", v !== "admin");
+  el("tab-admin").classList.toggle("active", v === "admin");
+
+  if (v === "home") {
+    el("v-home").classList.remove("hidden"); renderHome();
+  } else if (v === "request") {
+    el("v-request").classList.remove("hidden");
+    el("req-form").classList.remove("hidden"); el("req-ok").classList.add("hidden");
+  } else if (v === "cio") {
+    el("v-cio").classList.remove("hidden"); cioReset();
+  } else if (v === "report" || v === "rptpre") {
+    el("v-report").classList.remove("hidden");
+    el("rpt-form").classList.remove("hidden"); el("rpt-ok").classList.add("hidden");
+    el("rpt-back").classList.toggle("hidden", v === "rptpre");
+    if (v === "rptpre" && prefill) {
+      el("rpt-name").value = prefill.person || ""; el("rpt-name").readOnly = true;
+      el("rpt-event").value = prefill.event || ""; el("rpt-event").readOnly = true;
+    } else {
+      el("rpt-name").readOnly = false; el("rpt-event").readOnly = false;
+      rptAtt = ""; rptCond = "good"; el("rpt-population").value = "";
+      document.querySelectorAll(".toggle-group .toggle-btn").forEach(b => b.classList.remove("selected"));
+      ["good","minor","miss"].forEach(x => el("c-"+x).classList.toggle("selected", x === "good"));
+    }
+  } else if (v === "admin") {
+    el("v-admin").classList.remove("hidden"); renderAdmin();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════════════════
+function renderHome() {
+  const a = kits.filter(k => k.status === "available").length;
+  el("home-status").textContent = a===2 ? "Both kits are available right now." : a===1 ? "One kit is available." : "Both kits are currently checked out.";
+  el("home-kits").innerHTML = kits.map(k => `
+    <div class="kit-card ${k.status}" style="flex:1 1 180px;padding:16px 20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-size:22px">🧳</span>
+        <span style="font-weight:700;font-size:15px">${k.name}</span>
+      </div>
+      <span class="status-badge ${k.status}">
+        <span class="status-dot ${k.status}"></span>
+        ${k.status==="available" ? "Available" : k.status==="checked-out" ? "Out · "+k.checkedOutTo : "Needs Attention"}
+      </span>
+    </div>`).join("");
+}
+
+// ═══════════════════════════════════════════════════════════
+// PASSCODE
+// ═══════════════════════════════════════════════════════════
+function adminClick() {
+  if (unlocked) { go("admin"); return; }
+  el("pin-modal").classList.remove("hidden");
+  setTimeout(() => el("p0").focus(), 50);
+}
+function closePin() {
+  el("pin-modal").classList.add("hidden");
+  [0,1,2,3].forEach(i => { el("p"+i).value=""; el("p"+i).classList.remove("error"); });
+  el("pin-err").classList.add("hidden");
+}
+function pi(i) {
+  const v = el("p"+i).value;
+  if (v && i < 3) el("p"+(i+1)).focus();
+  const c = [0,1,2,3].map(n => el("p"+n).value).join("");
+  if (c.length === 4) {
+    if (c === CODE) { setTimeout(() => { unlocked=true; closePin(); go("admin"); }, 120); }
+    else {
+      [0,1,2,3].forEach(n => { el("p"+n).value=""; el("p"+n).classList.add("error"); });
+      el("pin-err").classList.remove("hidden");
+      setTimeout(() => { [0,1,2,3].forEach(n => el("p"+n).classList.remove("error")); el("p0").focus(); }, 800);
+    }
+  }
+}
+function pk(i, e) {
+  if (e.key==="Backspace" && !el("p"+i).value && i>0) el("p"+(i-1)).focus();
+  if (e.key==="Escape") closePin();
+}
+
+// ═══════════════════════════════════════════════════════════
+// CALENDAR (.ics)
+// ═══════════════════════════════════════════════════════════
+function makeICS(req) {
+  const dp = req.dateNeeded.split("-");
+  const tp = (req.startTime || "09:00").split(":");
+  const start = new Date(+dp[0], +dp[1]-1, +dp[2], +tp[0], +tp[1]);
+  const end = new Date(start.getTime() + 2*60*60*1000);
+  function icsDate(d) {
+    return d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")
+      +"T"+String(d.getHours()).padStart(2,"0")+String(d.getMinutes()).padStart(2,"0")+"00";
+  }
+  const desc = [
+    "ACRS Outreach Kit Request",
+    "Requested by: "+req.name,
+    "Department: "+(req.department||""),
+    "Program: "+req.program,
+    "Population: "+(req.population||""),
+    "Location: "+(req.location||"TBD"),
+    "Return: "+(req.dateReturn||req.dateNeeded)+(req.retTime?" at "+req.retTime:""),
+    req.notes ? "Notes: "+req.notes : ""
+  ].filter(Boolean).join("\\n");
+  return [
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//KitTrack//ACRS Outreach//EN",
+    "CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT",
+    "UID:kittrack-"+req.id+"@acrs.org",
+    "DTSTAMP:"+icsDate(new Date()),
+    "DTSTART:"+icsDate(start),
+    "DTEND:"+icsDate(end),
+    "SUMMARY:🧳 Outreach Kit — "+req.event,
+    "DESCRIPTION:"+desc,
+    "LOCATION:"+(req.location||""),
+    "STATUS:CONFIRMED","END:VEVENT","END:VCALENDAR"
+  ].join("\r\n");
+}
+function downloadCal() {
+  if (!lastReq) return;
+  const blob = new Blob([makeICS(lastReq)], {type:"text/calendar;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download=("KitRequest_"+lastReq.event).replace(/\s+/g,"_")+".ics";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════════════════
+// REQUEST FORM
+// ═══════════════════════════════════════════════════════════
+function submitReq() {
+  const n=el("rq-name").value.trim(), dept=el("rq-dept").value.trim(),
+        p=el("rq-prog").value.trim(),
+        e=el("rq-event").value.trim(), d=el("rq-date").value,
+        pop=el("rq-population").value.trim();
+  if (!n||!dept||!p||!e||!d||!pop) { alert("Please fill in all required fields (name, department, program, event, date, and population)."); return; }
+  const req = {
+    id:"r"+Date.now(), name:n, department:dept, program:p, event:e,
+    location:el("rq-loc").value.trim(), dateNeeded:d,
+    startTime:el("rq-time").value||"09:00",
+    dateReturn:el("rq-ret").value, retTime:el("rq-ret-time").value,
+    population:pop, notes:el("rq-notes").value.trim(),
+    email:el("rq-email").value.trim(),
+    status:"pending", assignedKit:null, submittedAt:new Date().toISOString()
+  };
+  reqs.push(req); lastReq = req;
+  saveState(); updBadge();
+  // Open mailto notification (opens user's email client)
+  const subject = encodeURIComponent("New Kit Request: "+req.event);
+  const body = encodeURIComponent(
+    "A new outreach kit request was submitted via KitTrack.\n\n"+
+    "Name: "+req.name+"\n"+
+    "Email: "+(req.email||"not provided")+"\n"+
+    "Department: "+(req.department||"")+"\n"+
+    "Program: "+req.program+"\n"+
+    "Event: "+req.event+"\n"+
+    "Location: "+(req.location||"not provided")+"\n"+
+    "Date: "+req.dateNeeded+(req.startTime?" at "+req.startTime:"")+"\n"+
+    "Return: "+(req.dateReturn||"")+(req.retTime?" at "+req.retTime:"")+"\n"+
+    "Population: "+(req.population||"")+"\n"+
+    (req.notes?"Notes: "+req.notes+"\n":"")+
+    "\nLog in to KitTrack to assign a kit and approve this request."
+  );
+  window.location.href = "mailto:nateb@acrs.org?subject="+subject+"&body="+body;
+  el("req-form").classList.add("hidden"); el("req-ok").classList.remove("hidden");
+}
+
+// ═══════════════════════════════════════════════════════════
+// CSV EXPORT
+// ═══════════════════════════════════════════════════════════
+function csvEscape(v) {
+  if (v===null||v===undefined) return "";
+  const s = String(v);
+  if (s.includes(",")||s.includes('"')||s.includes("\n")) return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+function downloadCSV(rows, filename) {
+  const csv = rows.map(r => r.map(csvEscape).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+function today() { return new Date().toISOString().slice(0,10).replace(/-/g,""); }
+function exportRequests() {
+  const header = ["Submitted","Name","Email","Department","Program","Event","Location","Date Needed","Start Time","Return Date","Return Time","Population Served","Status","Assigned Kit","Notes"];
+  const rows = reqs.map(r => [fmtT(r.submittedAt),r.name,r.email,r.department||"",r.program,r.event,r.location,r.dateNeeded,r.startTime,r.dateReturn,r.retTime||"",r.population||"",r.status,r.assignedKit||"",r.notes]);
+  downloadCSV([header,...rows], "ACRS_Kit_Requests_"+today()+".csv");
+}
+function exportReports() {
+  const header = ["Submitted","Name","Event","Attendance","Population Served","Kit Condition","What Went Well","Areas to Improve"];
+  const rows = reports.map(r => [fmtT(r.submittedAt),r.name,r.event,r.attendance,r.population||"",r.kitCondition,r.went,r.improve||""]);
+  downloadCSV([header,...rows], "ACRS_PostEvent_Reports_"+today()+".csv");
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHECK IN/OUT
+// ═══════════════════════════════════════════════════════════
+function cioReset() {
+  selKit=null; selAct=null; hasIss=false;
+  ["cio-s1","cio-s2","cio-s3","cio-done"].forEach((x,i) => el(x).classList.toggle("hidden", i!==0));
+  el("cio-name").value=""; el("cio-ev").value=""; el("cio-notes").value="";
+  el("cio-kits").innerHTML = kits.map(k => `
+    <div class="kit-card ${k.status}" style="cursor:pointer;flex:1 1 200px" onclick="pickKit('${k.id}')">
+      <div style="font-size:32px;margin-bottom:10px">🧳</div>
+      <div style="font-weight:700;font-size:17px;margin-bottom:8px">${k.name}</div>
+      <span class="status-badge ${k.status}">
+        <span class="status-dot ${k.status}"></span>
+        ${k.status==="available" ? "Available" : k.status==="checked-out" ? "Out · "+k.checkedOutTo : "Needs Attention"}
+      </span>
+    </div>`).join("");
+}
+function pickKit(id) {
+  selKit=id; const k = kits.find(x => x.id===id);
+  el("cio-kit-name").textContent = k.name;
+  el("cio-kit-stat").textContent = "Status: " + (k.status==="available" ? "Available" : "Checked out to "+k.checkedOutTo);
+  el("cio-co-btn").style.opacity = k.status==="checked-out" ? "0.4" : "1";
+  el("cio-co-btn").style.cursor = k.status==="checked-out" ? "not-allowed" : "pointer";
+  el("cio-ret-btn").style.opacity = k.status==="available" ? "0.4" : "1";
+  el("cio-ret-btn").style.cursor = k.status==="available" ? "not-allowed" : "pointer";
+  el("cio-s1").classList.add("hidden"); el("cio-s2").classList.remove("hidden");
+}
+function pickAction(a) {
+  const k = kits.find(x => x.id===selKit);
+  if (a==="checkout" && k.status==="checked-out") return;
+  if (a==="return" && k.status==="available") return;
+  selAct = a;
+  el("cio-act-title").textContent = a==="checkout" ? "Checking out" : "Returning";
+  el("cio-act-sub").textContent = k.name;
+  el("cio-ev-grp").classList.toggle("hidden", a==="return");
+  el("cio-iss-grp").classList.toggle("hidden", a==="checkout");
+  el("cio-go").textContent = a==="checkout" ? "Confirm Check-Out →" : "Confirm Return →";
+  el("cio-s2").classList.add("hidden"); el("cio-s3").classList.remove("hidden");
+}
+function setIss(v) {
+  hasIss=v;
+  el("btn-no").classList.toggle("selected",!v); el("btn-yes").classList.toggle("selected",v);
+  el("cio-notes").classList.toggle("hidden",!v);
+}
+function doCheckInOut() {
+  const name = el("cio-name").value.trim(), ev = el("cio-ev").value.trim();
+  if (!name) { alert("Please enter your name."); return; }
+  if (selAct==="checkout" && !ev) { alert("Please enter an event name."); return; }
+  const k = kits.find(x => x.id===selKit);
+
+  // For returns: show confirmation modal if kit is checked out to someone
+  if (selAct==="return" && k.checkedOutTo) {
+    pendingReturnData = { name, ev, k, notes: hasIss ? el("cio-notes").value.trim() : "" };
+    el("confirm-msg").textContent = `This kit is currently checked out to ${k.checkedOutTo} for "${k.event}". Are you ${k.checkedOutTo}?`;
+    el("confirm-modal").classList.remove("hidden");
+    return;
+  }
+  finalizeCheckInOut(name, ev, k, hasIss ? el("cio-notes").value.trim() : "");
+}
+function confirmReturn(yes) {
+  el("confirm-modal").classList.add("hidden");
+  if (!yes) { return; } // just close, user can re-enter their name
+  const {name, ev, k, notes} = pendingReturnData;
+  pendingReturnData = null;
+  finalizeCheckInOut(name, ev, k, notes);
+}
+function finalizeCheckInOut(name, ev, k, notes) {
+  const ts = new Date().toISOString();
+  if (selAct==="checkout") {
+    k.status="checked-out"; k.checkedOutTo=name; k.checkedOutSince=ts; k.event=ev;
+  } else {
+    k.status="available"; k.checkedOutTo=null; k.checkedOutSince=null; k.event=null;
+  }
+  txns.push({id:"t"+Date.now(), type:selAct, kit:k.name, person:name, event:ev, timestamp:ts, notes});
+  prefill = {person:name, event:ev};
+  saveState();
+  el("cio-done-ico").textContent = selAct==="checkout" ? "🧳" : "✅";
+  el("cio-done-h").textContent = selAct==="checkout" ? k.name+" is checked out!" : k.name+" returned — thank you!";
+  el("cio-done-p").textContent = selAct==="checkout" ? "Logged to "+name+" · "+ev : "Return logged for "+name;
+  el("cio-rpt-btn").classList.toggle("hidden", selAct==="checkout");
+  el("cio-s3").classList.add("hidden"); el("cio-done").classList.remove("hidden");
+}
+function goPrefillReport() { go("rptpre"); }
+
+// ═══════════════════════════════════════════════════════════
+// POST-EVENT REPORT
+// ═══════════════════════════════════════════════════════════
+function pickAtt(b) {
+  document.querySelectorAll(".toggle-group .toggle-btn").forEach(x => x.classList.remove("selected"));
+  b.classList.add("selected"); rptAtt = b.textContent;
+}
+function pickCond(v) {
+  rptCond = v;
+  ["good","minor","miss"].forEach(x => el("c-"+x).classList.toggle("selected",
+    (v==="good"&&x==="good")||(v==="minor"&&x==="minor")||(v==="missing"&&x==="miss")));
+}
+function submitRpt() {
+  const n=el("rpt-name").value.trim(), e=el("rpt-event").value.trim(),
+        w=el("rpt-well").value.trim(), pop=el("rpt-population").value.trim();
+  if (!n||!e||!rptAtt||!w||!pop) { alert("Please fill in all required fields."); return; }
+  reports.push({
+    id:"rpt"+Date.now(), name:n, event:e, attendance:rptAtt,
+    population:pop, went:w, improve:el("rpt-imp").value.trim(),
+    kitCondition:rptCond, submittedAt:new Date().toISOString()
   });
-  const [done, setDone] = useState(false);
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-  const valid = form.person && form.event && form.attendance && form.went;
+  saveState();
+  el("rpt-form").classList.add("hidden"); el("rpt-ok").classList.remove("hidden");
+  prefill=null; el("rpt-name").readOnly=false; el("rpt-event").readOnly=false;
+}
 
-  if (done) {
-    return (
-      <div style={css.page}>
-        <div style={css.success}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>🎉</div>
-          <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Report submitted!</div>
-          <div style={{ fontSize: 14, color: G.inkMid, marginBottom: 20 }}>Thanks for closing the loop — this helps us track outreach impact.</div>
-          <button style={{ ...css.btnSmall("ghost"), padding: "10px 24px", fontSize: 14 }} onClick={onBack}>Back to home</button>
-        </div>
-      </div>
-    );
+// ═══════════════════════════════════════════════════════════
+// ADMIN — DELETE
+// ═══════════════════════════════════════════════════════════
+function askDelete(type, id) {
+  pendingDeleteType=type; pendingDeleteId=id;
+  el("del-modal").classList.remove("hidden");
+}
+function confirmDelete(yes) {
+  el("del-modal").classList.add("hidden");
+  if (!yes) { pendingDeleteType=null; pendingDeleteId=null; return; }
+  if (pendingDeleteType==="req") {
+    const i = reqs.findIndex(r => r.id===pendingDeleteId);
+    if (i>-1) reqs.splice(i,1);
+  } else if (pendingDeleteType==="rpt") {
+    const i = reports.findIndex(r => r.id===pendingDeleteId);
+    if (i>-1) reports.splice(i,1);
   }
-
-  return (
-    <div style={css.page}>
-      {!prefill.event && <button onClick={onBack} style={{ ...css.btnSmall("ghost"), marginBottom: 24 }}>← Back</button>}
-      <div style={{ marginBottom: 28 }}>
-        <div style={css.h1}>Post-Event Report</div>
-        <div style={css.cardSub}>Just a few quick questions — takes about 2 minutes.</div>
-      </div>
-
-      <div style={css.card}>
-        <div style={css.row}>
-          <div style={{ ...css.formGroup, flex: 1 }}>
-            <label style={css.label}>Your name</label>
-            {prefill.person
-              ? <div style={{ ...css.input, background: G.surface, color: G.inkMid }}>{prefill.person}</div>
-              : <input style={css.input} value={form.person} onChange={set("person")} placeholder="Your name" />}
-          </div>
-          <div style={{ ...css.formGroup, flex: 1 }}>
-            <label style={css.label}>Event</label>
-            {prefill.event
-              ? <div style={{ ...css.input, background: G.surface, color: G.inkMid }}>{prefill.event}</div>
-              : <input style={css.input} value={form.event} onChange={set("event")} placeholder="Event name" />}
-          </div>
-        </div>
-
-        <div style={css.formGroup}>
-          <label style={css.label}>Estimated attendance</label>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {["Under 20", "20–50", "50–100", "100–200", "200+"].map((opt) => (
-              <button
-                key={opt}
-                onClick={() => setForm((f) => ({ ...f, attendance: opt }))}
-                style={{
-                  padding: "8px 16px",
-                  borderRadius: 8,
-                  border: `1.5px solid ${form.attendance === opt ? G.pink : G.border}`,
-                  background: form.attendance === opt ? G.pinkLight : G.white,
-                  color: form.attendance === opt ? G.pink : G.ink,
-                  fontWeight: form.attendance === opt ? 700 : 400,
-                  fontSize: 14,
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                }}
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div style={css.formGroup}>
-          <label style={css.label}>What went well?</label>
-          <textarea style={css.textarea} value={form.went} onChange={set("went")} placeholder="Community response, connections made, materials used well..." />
-        </div>
-
-        <div style={css.formGroup}>
-          <label style={css.label}>Anything to improve next time? <span style={{ fontWeight: 400, color: G.inkLight }}>(optional)</span></label>
-          <textarea style={css.textarea} value={form.improve} onChange={set("improve")} placeholder="Logistics, materials, timing..." />
-        </div>
-
-        <div style={css.formGroup}>
-          <label style={css.label}>Kit condition at return</label>
-          <div style={{ display: "flex", gap: 8 }}>
-            {[{ v: "good", label: "All good ✅" }, { v: "minor", label: "Minor issue 🔧" }, { v: "missing", label: "Something missing ⚠️" }].map((opt) => (
-              <button
-                key={opt.v}
-                onClick={() => setForm((f) => ({ ...f, kitCondition: opt.v }))}
-                style={{
-                  flex: 1,
-                  padding: "10px",
-                  borderRadius: 8,
-                  border: `1.5px solid ${form.kitCondition === opt.v ? G.pink : G.border}`,
-                  background: form.kitCondition === opt.v ? G.pinkLight : G.white,
-                  color: form.kitCondition === opt.v ? G.pink : G.ink,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                }}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <button style={{ ...css.btnPrimary, opacity: valid ? 1 : 0.5 }} disabled={!valid} onClick={() => { onSubmit && onSubmit(form); setDone(true); }}>
-          Submit Report →
-        </button>
-      </div>
-    </div>
-  );
+  saveState(); renderAdmin();
+  pendingDeleteType=null; pendingDeleteId=null;
 }
 
-// ─── ADMIN DASHBOARD ──────────────────────────────────────────────────────────
-function AdminDashboard({ kits, requests, transactions, onApprove, onDeny, onMarkAttention }) {
-  const [tab, setTab] = useState("kits");
-  const pending = requests.filter((r) => r.status === "pending");
+// ═══════════════════════════════════════════════════════════
+// ADMIN — RENDER
+// ═══════════════════════════════════════════════════════════
+function updBadge() {
+  const c = reqs.filter(r => r.status==="pending").length;
+  el("pending-badge").textContent=c;
+  el("pending-badge").classList.toggle("hidden", c===0);
+}
+function renderAdmin() {
+  updBadge();
+  const p = reqs.filter(r => r.status==="pending");
+  if (p.length>0) { el("adm-banner").textContent=p.length+" pending request"+(p.length>1?"s":""); el("adm-banner").classList.remove("hidden"); }
+  else el("adm-banner").classList.add("hidden");
 
-  return (
-    <div style={css.pageWide}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28, flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <div style={css.h1}>Kit Dashboard</div>
-          <div style={css.cardSub}>Admin view · ACRS Outreach</div>
-        </div>
-        {pending.length > 0 && (
-          <div style={{ background: G.amberFaint, border: `1.5px solid ${G.amber}`, borderRadius: 10, padding: "8px 16px", fontSize: 13, fontWeight: 600, color: G.amber }}>
-            {pending.length} pending request{pending.length > 1 ? "s" : ""}
-          </div>
-        )}
+  el("adm-kits").innerHTML = kits.map(k => `
+    <div class="kit-card ${k.status}" style="flex:1 1 240px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <span style="font-size:28px">🧳</span>
+        <span class="status-badge ${k.status}"><span class="status-dot ${k.status}"></span>${k.status==="available"?"Available":k.status==="checked-out"?"Checked Out":"Needs Attention"}</span>
       </div>
+      <div style="font-weight:700;font-size:18px;margin-bottom:4px">${k.name}</div>
+      ${k.status==="checked-out" ? `<div style="font-size:13px;color:var(--ink-mid);margin-bottom:12px"><div>👤 ${k.checkedOutTo}</div><div>📋 ${k.event}</div><div>🕐 Since ${fmt(k.checkedOutSince)}</div></div>` : `<div style="font-size:13px;color:var(--ink-light);margin-bottom:12px">Last verified ${fmt(k.lastVerified)}</div>`}
+      <div style="display:flex;gap:8px">
+        ${k.status!=="needs-attention" ? `<button class="btn-ghost" onclick="flagKit('${k.id}')">Flag issue</button>` : ""}
+        ${k.status==="needs-attention" ? `<button class="btn-green" onclick="fixKit('${k.id}')">Mark resolved</button>` : ""}
+      </div>
+    </div>`).join("");
 
-      {/* Kit status cards */}
-      <div style={{ ...css.row, marginBottom: 24 }}>
-        {kits.map((k) => (
-          <div key={k.id} style={css.kitCard(k.status)}>
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }}>
-              <div style={{ fontSize: 28 }}>🧳</div>
-              <span style={css.kitStatus(k.status)}>
-                <span style={css.statusDot(k.status)} />
-                {k.status === "available" ? "Available" : k.status === "checked-out" ? "Checked Out" : "Needs Attention"}
+  renderReqs(); renderRpts(); renderLog();
+}
+
+function renderReqs() {
+  el("adm-req").innerHTML = `
+    <div class="section-header">
+      <h2 style="margin:0">Kit Requests</h2>
+      <button class="btn-download" onclick="exportRequests()">⬇ Export CSV</button>
+    </div>` +
+    (reqs.length===0
+      ? `<div class="empty-state">📭 No requests yet.<br><span style="font-size:12px">Requests submitted by staff will appear here.</span></div>`
+      : reqs.map(r => `
+        <div class="card">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div style="flex:1;min-width:200px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+                <span style="font-weight:700;font-size:16px">${r.name}</span>
+                <span class="badge ${r.status}">${r.status}</span>
+                ${r.assignedKit ? `<span style="font-size:13px;color:var(--ink-light)">→ ${r.assignedKit}</span>` : ""}
+              </div>
+              <div style="font-size:13px;color:var(--ink-mid);display:flex;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+                <span>📋 ${r.event}</span><span>🏢 ${r.department||""} ${r.department&&r.program?"·":""} ${r.program}</span>
+                ${r.location ? `<span>📍 ${r.location}</span>` : ""}
+                <span>📅 ${fmt(r.dateNeeded)}${r.startTime?" · "+r.startTime:""}</span>
+                <span style="color:var(--ink-light)">${fmtT(r.submittedAt)}</span>
+              </div>
+              ${r.population ? `<div style="font-size:13px;color:var(--ink-mid);margin-bottom:4px">👥 <em>${r.population}</em></div>` : ""}
+              ${r.notes ? `<div style="font-size:13px;color:var(--ink-light)">💬 ${r.notes}</div>` : ""}
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              ${r.status==="pending" ? `
+                <select style="border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;background:white;cursor:pointer;font-family:inherit" onchange="approveReq('${r.id}',this.value)">
+                  <option value="">Assign kit…</option>
+                  ${kits.filter(k=>k.status==="available").map(k=>`<option value="${k.name}">${k.name}</option>`).join("")}
+                </select>
+                <button class="btn-ghost" onclick="denyReq('${r.id}')">Deny</button>
+              ` : ""}
+              <button class="btn-danger" onclick="askDelete('req','${r.id}')" title="Delete">🗑</button>
+            </div>
+          </div>
+        </div>`).join(""));
+}
+
+function renderRpts() {
+  el("adm-reports").innerHTML = `
+    <div class="section-header">
+      <h2 style="margin:0">Post-Event Reports</h2>
+      <button class="btn-download" onclick="exportReports()">⬇ Export CSV</button>
+    </div>` +
+    (reports.length===0
+      ? `<div class="empty-state">📋 No reports yet.<br><span style="font-size:12px">Reports submitted after events will appear here. Staff are prompted to submit a report after returning a kit.</span></div>`
+      : reports.map(r => `
+        <div class="card">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+            <div>
+              <div style="font-weight:700;font-size:16px;margin-bottom:2px">${r.event}</div>
+              <div style="font-size:13px;color:var(--ink-mid)">Submitted by ${r.name} · ${fmtT(r.submittedAt)}</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <span style="font-size:13px;padding:4px 10px;border-radius:20px;background:#f0edf5;color:var(--ink-mid);font-weight:600">👥 ${r.attendance}</span>
+              <span style="font-size:13px;padding:4px 10px;border-radius:20px;font-weight:600;background:${r.kitCondition==="good"?"var(--green-faint)":r.kitCondition==="minor"?"var(--amber-faint)":"var(--red-faint)"};color:${r.kitCondition==="good"?"var(--green)":r.kitCondition==="minor"?"var(--amber)":"var(--red)"}">
+                ${r.kitCondition==="good"?"✅ Kit OK":r.kitCondition==="minor"?"🔧 Minor issue":"⚠️ Missing items"}
               </span>
-            </div>
-            <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>{k.name}</div>
-            {k.status === "checked-out" && (
-              <div style={{ fontSize: 13, color: G.inkMid, marginBottom: 12 }}>
-                <div>👤 {k.checkedOutTo}</div>
-                <div>📋 {k.event}</div>
-                <div>🕐 Since {fmt(k.checkedOutSince)}</div>
-                {k.returnDate && <div>📅 Return by {fmt(k.returnDate)}</div>}
-              </div>
-            )}
-            {k.status === "available" && (
-              <div style={{ fontSize: 13, color: G.inkLight, marginBottom: 12 }}>Last verified {fmt(k.lastVerified)}</div>
-            )}
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {k.status !== "needs-attention" && (
-                <button style={css.btnSmall("ghost")} onClick={() => onMarkAttention(k.id)}>Flag issue</button>
-              )}
-              {k.status === "needs-attention" && (
-                <button style={css.btnSmall("green")} onClick={() => onMarkAttention(k.id, "clear")}>Mark resolved</button>
-              )}
+              <button class="btn-danger" onclick="askDelete('rpt','${r.id}')" title="Delete">🗑</button>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Tabs */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 20, borderBottom: `1px solid ${G.border}`, paddingBottom: 4 }}>
-        {[
-          { id: "kits", label: "Requests" + (pending.length ? ` (${pending.length})` : "") },
-          { id: "log", label: "Activity Log" },
-        ].map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)} style={css.navTab(tab === t.id)}>{t.label}</button>
-        ))}
-      </div>
-
-      {/* Requests */}
-      {tab === "kits" && (
-        <div>
-          {requests.length === 0 && <div style={{ color: G.inkLight, fontSize: 14 }}>No requests yet.</div>}
-          {requests.map((r) => (
-            <div key={r.id} style={css.card}>
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
-                    <span style={{ fontWeight: 700, fontSize: 16 }}>{r.name}</span>
-                    <span style={css.badge(r.status)}>{r.status}</span>
-                    {r.assignedKit && <span style={{ fontSize: 13, color: G.inkLight }}>→ {r.assignedKit}</span>}
-                  </div>
-                  <div style={{ fontSize: 13, color: G.inkMid, display: "flex", gap: 16, flexWrap: "wrap" }}>
-                    <span>📋 {r.event}</span>
-                    <span>🏢 {r.program}</span>
-                    <span>📅 {fmt(r.dateNeeded)}{r.dateReturn && ` – ${fmt(r.dateReturn)}`}</span>
-                    <span style={{ color: G.inkLight }}>Submitted {fmtTime(r.submittedAt)}</span>
-                  </div>
-                  {r.notes && <div style={{ fontSize: 13, color: G.inkLight, marginTop: 6 }}>💬 {r.notes}</div>}
-                </div>
-                {r.status === "pending" && (
-                  <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                    <select
-                      style={{ ...css.select, width: "auto", fontSize: 13, padding: "6px 12px" }}
-                      onChange={(e) => e.target.value && onApprove(r.id, e.target.value)}
-                      defaultValue=""
-                    >
-                      <option value="" disabled>Assign kit…</option>
-                      {kits.filter((k) => k.status === "available").map((k) => (
-                        <option key={k.id} value={k.name}>{k.name}</option>
-                      ))}
-                    </select>
-                    <button style={css.btnSmall("ghost")} onClick={() => onDeny(r.id)}>Deny</button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Activity log */}
-      {tab === "log" && (
-        <div>
-          {transactions.length === 0 && <div style={{ color: G.inkLight, fontSize: 14 }}>No activity yet.</div>}
-          {[...transactions].reverse().map((t) => (
-            <div key={t.id} style={{ ...css.card, display: "flex", alignItems: "center", gap: 16, padding: "14px 20px" }}>
-              <div style={{ fontSize: 22 }}>{t.type === "checkout" ? "🧳" : t.type === "return" ? "↩️" : "📋"}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: 14 }}>
-                  {t.type === "checkout" ? "Checked out" : t.type === "return" ? "Returned" : "Report"} · {t.kit}
-                </div>
-                <div style={{ fontSize: 13, color: G.inkMid }}>
-                  {t.person}{t.event ? ` · ${t.event}` : ""}
-                </div>
-                {t.notes && <div style={{ fontSize: 12, color: G.inkLight, marginTop: 2 }}>⚠️ {t.notes}</div>}
-              </div>
-              <div style={{ fontSize: 12, color: G.inkLight, whiteSpace: "nowrap" }}>{fmtTime(t.timestamp)}</div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+          ${r.population ? `<div style="font-size:13px;color:var(--ink-mid);margin-bottom:6px">👥 <strong>Population:</strong> ${r.population}</div>` : ""}
+          <div style="font-size:13px;color:var(--ink-mid);margin-bottom:6px"><strong>What went well:</strong> ${r.went}</div>
+          ${r.improve ? `<div style="font-size:13px;color:var(--ink-mid)"><strong>To improve:</strong> ${r.improve}</div>` : ""}
+        </div>`).join(""));
 }
 
-// ─── HOME ─────────────────────────────────────────────────────────────────────
-function Home({ kits, onNavigate }) {
-  const available = kits.filter((k) => k.status === "available").length;
-
-  return (
-    <div style={css.page}>
-      {/* Hero */}
-      <div style={{ marginBottom: 36, paddingTop: 8 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: G.pink, letterSpacing: "1px", textTransform: "uppercase", marginBottom: 10 }}>
-          ACRS Outreach
-        </div>
-        <div style={{ ...css.h1, fontSize: 30 }}>Outreach Kit Portal</div>
-        <div style={{ fontSize: 15, color: G.inkMid, marginTop: 6 }}>
-          {available === 2 ? "Both kits are available right now." : available === 1 ? "One kit is available." : "Both kits are currently checked out."}
-        </div>
-      </div>
-
-      {/* Kit status strip */}
-      <div style={{ ...css.row, marginBottom: 32 }}>
-        {kits.map((k) => (
-          <div key={k.id} style={{ ...css.kitCard(k.status), flex: "1 1 180px", padding: "16px 20px" }}>
-            <div style={{ display: "flex", align: "center", gap: 10, marginBottom: 6 }}>
-              <span style={{ fontSize: 22 }}>🧳</span>
-              <span style={{ fontWeight: 700, fontSize: 15 }}>{k.name}</span>
-            </div>
-            <span style={css.kitStatus(k.status)}>
-              <span style={css.statusDot(k.status)} />
-              {k.status === "available" ? "Available" : k.status === "checked-out" ? `Out · ${k.checkedOutTo}` : "Needs Attention"}
-            </span>
+function renderLog() {
+  el("adm-log").innerHTML =
+    `<div class="section-header"><h2 style="margin:0">Activity Log</h2><span style="font-size:13px;color:var(--ink-light)">Check-in/out events in reverse chronological order</span></div>` +
+    (txns.length===0
+      ? `<div class="empty-state">📂 No activity yet.<br><span style="font-size:12px">Check-in and check-out events will appear here as staff use the kits.</span></div>`
+      : [...txns].reverse().map(t => `
+        <div class="card log-item">
+          <div style="font-size:22px;flex-shrink:0">${t.type==="checkout"?"🧳":"↩️"}</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:14px">${t.type==="checkout"?"Checked out":"Returned"} · ${t.kit}</div>
+            <div style="font-size:13px;color:var(--ink-mid)">${t.person}${t.event?" · "+t.event:""}</div>
+            ${t.notes ? `<div style="font-size:12px;color:var(--ink-light);margin-top:2px">⚠️ ${t.notes}</div>` : ""}
           </div>
-        ))}
-      </div>
-
-      {/* Actions */}
-      <div style={css.h2}>What do you need?</div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16, marginBottom: 12 }}>
-        {[
-          {
-            id: "request",
-            icon: "📬",
-            title: "Request a Kit",
-            sub: "Submit a request for an upcoming event",
-            color: G.pink,
-          },
-          {
-            id: "checkinout",
-            icon: "🔄",
-            title: "Check In / Out",
-            sub: "Quick tap to log a pickup or return",
-            color: G.green,
-          },
-          {
-            id: "report",
-            icon: "📊",
-            title: "Post-Event Report",
-            sub: "2-minute wrap-up after your event",
-            color: "#7b61ff",
-          },
-        ].map((a) => (
-          <div
-            key={a.id}
-            onClick={() => onNavigate(a.id)}
-            style={{
-              background: G.white,
-              border: `1.5px solid ${G.border}`,
-              borderRadius: 16,
-              padding: "22px 20px",
-              cursor: "pointer",
-              transition: "border-color 0.15s, box-shadow 0.15s",
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
-          >
-            <div style={{ fontSize: 30 }}>{a.icon}</div>
-            <div style={{ fontWeight: 700, fontSize: 16, color: G.ink }}>{a.title}</div>
-            <div style={{ fontSize: 13, color: G.inkLight, lineHeight: 1.4 }}>{a.sub}</div>
-            <div style={{ marginTop: 4, fontSize: 13, fontWeight: 600, color: a.color }}>Get started →</div>
-          </div>
-        ))}
-      </div>
-
-      {/* QR hint */}
-      <div style={{ background: G.pinkFaint, border: `1px dashed ${G.pink}`, borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{ fontSize: 24 }}>📱</div>
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: G.ink }}>QR codes make check-in/out even faster</div>
-          <div style={{ fontSize: 13, color: G.inkMid }}>Scan the code inside the kit lid to jump straight to the check-in/out screen.</div>
-        </div>
-      </div>
-    </div>
-  );
+          <div style="font-size:12px;color:var(--ink-light);white-space:nowrap">${fmtT(t.timestamp)}</div>
+        </div>`).join(""));
 }
 
-// ─── PASSCODE MODAL ───────────────────────────────────────────────────────────
-function PasscodeModal({ onSuccess, onClose }) {
-  const [digits, setDigits] = useState(["", "", "", ""]);
-  const [error, setError] = useState(false);
-  const ADMIN_PASSCODE = "3639";
-  const inputRefs = [
-    { current: null }, { current: null }, { current: null }, { current: null }
-  ];
-
-  const handleDigit = (i, val) => {
-    if (!/^\d?$/.test(val)) return;
-    const next = [...digits];
-    next[i] = val;
-    setDigits(next);
-    setError(false);
-    if (val && i < 3) {
-      document.getElementById("pc-" + (i+1))?.focus();
-    }
-    if (next.every(Boolean)) {
-      const code = next.join("");
-      if (code === ADMIN_PASSCODE) {
-        setTimeout(onSuccess, 120);
-      } else {
-        setError(true);
-        setDigits(["", "", "", ""]);
-        setTimeout(() => document.getElementById("pc-0")?.focus(), 80);
-      }
-    }
-  };
-
-  const handleKey = (i, e) => {
-    if (e.key === "Backspace" && !digits[i] && i > 0) {
-      document.getElementById("pc-" + (i-1))?.focus();
-    }
-    if (e.key === "Escape") onClose();
-  };
-
-  return (
-    <div style={{
-      position: "fixed", inset: 0, background: "rgba(26,18,37,0.55)", backdropFilter: "blur(4px)",
-      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999,
-    }}>
-      <div style={{
-        background: G.white, borderRadius: 20, padding: "36px 32px", width: 300,
-        boxShadow: "0 24px 60px rgba(0,0,0,0.18)", textAlign: "center",
-      }}>
-        <div style={{ fontSize: 32, marginBottom: 12 }}>🔒</div>
-        <div style={{ fontSize: 18, fontWeight: 700, color: G.ink, marginBottom: 6 }}>Admin Access</div>
-        <div style={{ fontSize: 13, color: G.inkLight, marginBottom: 24 }}>Enter your 4-digit passcode</div>
-
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 20 }}>
-          {digits.map((d, i) => (
-            <input
-              key={i}
-              id={"pc-" + i}
-              type="password"
-              inputMode="numeric"
-              maxLength={1}
-              value={d}
-              autoFocus={i === 0}
-              onChange={(e) => handleDigit(i, e.target.value)}
-              onKeyDown={(e) => handleKey(i, e)}
-              style={{
-                width: 52, height: 56, textAlign: "center", fontSize: 22, fontWeight: 700,
-                border: "2px solid " + (error ? G.red : d ? G.pink : G.border),
-                borderRadius: 12, outline: "none", fontFamily: "inherit", color: G.ink,
-                background: error ? G.redFaint : d ? G.pinkFaint : G.white,
-                transition: "border-color 0.15s, background 0.15s",
-              }}
-            />
-          ))}
-        </div>
-
-        {error && (
-          <div style={{ fontSize: 13, color: G.red, fontWeight: 600, marginBottom: 16 }}>
-            Incorrect passcode — try again
-          </div>
-        )}
-
-        <button onClick={onClose} style={{ ...css.btnSmall("ghost"), width: "100%", padding: "10px" }}>
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
+function admTab(t) {
+  el("adm-t1").classList.toggle("active", t==="req");
+  el("adm-t2").classList.toggle("active", t==="reports");
+  el("adm-t3").classList.toggle("active", t==="log");
+  el("adm-req").classList.toggle("hidden", t!=="req");
+  el("adm-reports").classList.toggle("hidden", t!=="reports");
+  el("adm-log").classList.toggle("hidden", t!=="log");
 }
-
-// ─── ROOT APP ─────────────────────────────────────────────────────────────────
-function App() {
-  const [view, setView] = useState("home");
-  const [kits, setKits] = useState(INITIAL_KITS);
-  const [requests, setRequests] = useState(INITIAL_REQUESTS);
-  const [transactions, setTransactions] = useState(INITIAL_TRANSACTIONS);
-  const [adminUnlocked, setAdminUnlocked] = useState(false);
-  const [showPasscode, setShowPasscode] = useState(false);
-
-  const isAdmin = view === "admin";
-
-  // ── handlers ──
-  const handleCheckAction = ({ kitId, action, person, event, notes, timestamp }) => {
-    setKits((prev) =>
-      prev.map((k) =>
-        k.id !== kitId
-          ? k
-          : action === "checkout"
-          ? { ...k, status: "checked-out", checkedOutTo: person, checkedOutSince: timestamp, event }
-          : { ...k, status: "available", checkedOutTo: null, checkedOutSince: null, event: null }
-      )
-    );
-    setTransactions((prev) => [
-      ...prev,
-      { id: "t" + Date.now(), type: action, kit: kits.find((k) => k.id === kitId)?.name, person, event, timestamp, notes },
-    ]);
-  };
-
-  const handleRequest = (req) => {
-    setRequests((prev) => [...prev, req]);
-  };
-
-  const handleApprove = (reqId, kitName) => {
-    setRequests((prev) => prev.map((r) => (r.id === reqId ? { ...r, status: "approved", assignedKit: kitName } : r)));
-  };
-
-  const handleDeny = (reqId) => {
-    setRequests((prev) => prev.map((r) => (r.id === reqId ? { ...r, status: "denied" } : r)));
-  };
-
-  const handleMarkAttention = (kitId, mode) => {
-    setKits((prev) =>
-      prev.map((k) => (k.id !== kitId ? k : { ...k, status: mode === "clear" ? "available" : "needs-attention" }))
-    );
-  };
-
-  return (
-    <div style={css.app}>
-      {/* Google Font */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #faf8fc; }
-        button:hover { filter: brightness(0.95); }
-        input:focus, select:focus, textarea:focus { border-color: #e8197d !important; }
-      `}</style>
-
-      {/* Nav */}
-      <nav style={css.nav}>
-        <div style={css.navLogo} onClick={() => setView("home")} role="button">
-          <div style={css.navPill} />
-          KitTrack
-        </div>
-        <div style={css.navTabs}>
-          <button style={css.navTab(view === "home" || ["request","checkinout","report"].includes(view))} onClick={() => setView("home")}>Staff</button>
-          <button style={css.navTab(view === "admin")} onClick={() => {
-            if (adminUnlocked) { setView("admin"); } else { setShowPasscode(true); }
-          }}>
-            Admin {requests.filter((r) => r.status === "pending").length > 0 && (
-              <span style={{ background: G.pink, color: "white", borderRadius: "50%", width: 16, height: 16, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, marginLeft: 6 }}>
-                {requests.filter((r) => r.status === "pending").length}
-              </span>
-            )}
-          </button>
-        </div>
-      </nav>
-
-      {/* Passcode modal */}
-      {showPasscode && (
-        <PasscodeModal
-          onSuccess={() => { setAdminUnlocked(true); setShowPasscode(false); setView("admin"); }}
-          onClose={() => setShowPasscode(false)}
-        />
-      )}
-
-      {/* Views */}
-      {view === "home" && <Home kits={kits} onNavigate={setView} />}
-      {view === "request" && <RequestForm onSubmit={handleRequest} onBack={() => setView("home")} />}
-      {view === "checkinout" && <QRCheckPage kits={kits} onAction={handleCheckAction} onBack={() => setView("home")} />}
-      {view === "report" && <PostEventReport onSubmit={() => {}} onBack={() => setView("home")} />}
-      {view === "admin" && (
-        <AdminDashboard
-          kits={kits}
-          requests={requests}
-          transactions={transactions}
-          onApprove={handleApprove}
-          onDeny={handleDeny}
-          onMarkAttention={handleMarkAttention}
-        />
-      )}
-    </div>
-  );
+function approveReq(id, kit) {
+  if (!kit) return;
+  const r = reqs.find(x => x.id===id); r.status="approved"; r.assignedKit=kit;
+  saveState(); renderAdmin();
 }
+function denyReq(id) {
+  reqs.find(x => x.id===id).status="denied";
+  saveState(); renderAdmin();
+}
+function flagKit(id) { kits.find(k => k.id===id).status="needs-attention"; saveState(); renderAdmin(); }
+function fixKit(id)  { kits.find(k => k.id===id).status="available"; saveState(); renderAdmin(); }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+updBadge(); renderHome();
+</script>
 </body>
 </html>
