@@ -439,7 +439,7 @@ async function loadData(showLoader=false) {
   if (showLoader) setLoading(true);
   setSyncStatus("syncing","Syncing…");
   try {
-    const res = await fetch(SCRIPT_URL+"?t="+Date.now());
+    const res = await fetch(SCRIPT_URL, {method:"POST",body:JSON.stringify({action:"load"}),headers:{"Content-Type":"text/plain"}});
     const data = await res.json();
     kits    = data.kits    || [];
     reqs    = data.reqs    || [];
