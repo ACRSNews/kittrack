@@ -1,775 +1,164 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>KitTrack · ACRS Outreach</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-<style>
-  :root {
-    --pink:#e8197d;--pink-light:#fce8f3;--pink-faint:#fdf3f9;
-    --ink:#1a1225;--ink-mid:#4a3f58;--ink-light:#8b7a9a;
-    --border:#e8dff0;--surface:#faf8fc;--white:#ffffff;
-    --green:#1ab86c;--green-faint:#e8f9f1;
-    --amber:#f5a623;--amber-faint:#fef6e8;
-    --red:#e83419;--red-faint:#fdecea;
-    --purple:#7b61ff;--purple-faint:#f0eeff;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--surface);color:var(--ink);min-height:100vh}
-  button,input,select,textarea{font-family:inherit}
-  nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
-  .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;color:var(--ink);cursor:pointer}
-  .nav-pill{width:10px;height:10px;border-radius:50%;background:var(--pink);flex-shrink:0}
-  .nav-tabs{display:flex;gap:4px}
-  .nav-tab{padding:6px 14px;border-radius:8px;border:none;font-size:14px;font-weight:400;background:transparent;color:var(--ink-mid);cursor:pointer;transition:all 0.15s}
-  .nav-tab.active{font-weight:600;background:var(--pink-light);color:var(--pink)}
-  .nav-badge{background:var(--pink);color:white;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-left:6px}
-  .page{max-width:900px;margin:0 auto;padding:32px 24px}
-  .page-wide{max-width:1100px;margin:0 auto;padding:32px 24px}
-  .row{display:flex;gap:16px;flex-wrap:wrap}
-  .hidden{display:none!important}
-  .card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px}
-  .kit-card{background:var(--white);border:2px solid var(--border);border-radius:20px;padding:24px;flex:1;min-width:220px}
-  .kit-card.available{border-color:var(--green)}
-  .kit-card.needs-attention{border-color:var(--amber)}
-  .status-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:0.3px;text-transform:uppercase}
-  .status-badge.available{background:var(--green-faint);color:var(--green)}
-  .status-badge.checked-out{background:#f0edf5;color:var(--ink-light)}
-  .status-badge.needs-attention{background:var(--amber-faint);color:var(--amber)}
-  .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
-  .status-dot.available{background:var(--green)}
-  .status-dot.checked-out{background:var(--ink-light)}
-  .status-dot.needs-attention{background:var(--amber)}
-  .btn-primary{background:var(--pink);color:white;border:none;border-radius:10px;padding:12px 24px;font-size:15px;font-weight:600;width:100%;cursor:pointer;transition:background 0.15s}
-  .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
-  .btn-primary:not(:disabled):hover{background:#c4156a}
-  .btn-ghost{background:transparent;color:var(--ink-mid);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
-  .btn-ghost:hover{background:var(--surface)}
-  .btn-green{background:var(--green);color:white;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
-  .btn-pink-sm{background:var(--pink);color:white;border:none;border-radius:8px;padding:8px 18px;font-size:14px;font-weight:600;cursor:pointer}
-  .btn-download{background:var(--purple-faint);color:var(--purple);border:1.5px solid var(--purple);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-  .btn-download:hover{background:var(--purple);color:white}
-  .btn-danger{background:var(--red-faint);color:var(--red);border:1.5px solid var(--red);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
-  .form-group{margin-bottom:18px}
-  label{font-size:13px;font-weight:600;color:var(--ink-mid);display:block;margin-bottom:6px}
-  input[type=text],input[type=email],input[type=date],input[type=time],select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:15px;color:var(--ink);background:var(--white);outline:none;transition:border-color 0.15s}
-  input:focus,select:focus,textarea:focus{border-color:var(--pink)}
-  textarea{resize:vertical;min-height:80px}
-  select{appearance:none;cursor:pointer}
-  input[readonly]{background:var(--surface);color:var(--ink-mid)}
-  .toggle-group{display:flex;gap:8px;flex-wrap:wrap}
-  .toggle-btn{padding:8px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--ink);font-size:14px;font-weight:400;cursor:pointer;transition:all 0.15s}
-  .toggle-btn.selected{border-color:var(--pink);background:var(--pink-light);color:var(--pink);font-weight:600}
-  .cond-group{display:flex;gap:8px;flex-direction:column}
-  @media(min-width:480px){.cond-group{flex-direction:row}}
-  .cond-btn{flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center}
-  .cond-btn.selected{border-color:var(--pink);background:var(--pink-light);color:var(--pink)}
-  .toggle-half{flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s}
-  .toggle-half.selected{border-color:var(--pink);background:var(--pink-light);color:var(--pink)}
-  .success-box{background:var(--green-faint);border:1.5px solid var(--green);border-radius:14px;padding:32px 24px;text-align:center}
-  .success-box h2{font-size:20px;font-weight:700;margin-bottom:8px}
-  .success-box p{font-size:14px;color:var(--ink-mid);margin-bottom:12px}
-  .badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600}
-  .badge.pending{background:var(--amber-faint);color:var(--amber)}
-  .badge.approved{background:var(--green-faint);color:var(--green)}
-  .badge.denied{background:var(--red-faint);color:var(--red)}
-  .modal-overlay{position:fixed;inset:0;background:rgba(26,18,37,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:999;padding:16px}
-  .modal-box{background:var(--white);border-radius:20px;padding:36px 32px;width:100%;max-width:340px;box-shadow:0 24px 60px rgba(0,0,0,0.18);text-align:center}
-  .pin-row{display:flex;gap:12px;justify-content:center;margin-bottom:20px}
-  .pin-input{width:52px;height:56px;text-align:center;font-size:22px;font-weight:700;border:2px solid var(--border);border-radius:12px;outline:none;color:var(--ink);transition:border-color 0.15s}
-  .pin-input:focus{border-color:var(--pink)}
-  .pin-input.error{border-color:var(--red);background:var(--red-faint)}
-  .confirm-box{background:var(--white);border-radius:20px;padding:32px 28px;width:100%;max-width:380px;box-shadow:0 24px 60px rgba(0,0,0,0.18)}
-  .confirm-box h3{font-size:17px;font-weight:700;margin-bottom:8px}
-  .confirm-box p{font-size:14px;color:var(--ink-mid);margin-bottom:24px;line-height:1.5}
-  .action-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:20px}
-  .action-card{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:border-color 0.15s,box-shadow 0.15s}
-  .action-card:hover{border-color:var(--pink);box-shadow:0 4px 20px rgba(232,25,125,0.08)}
-  .qr-hint{background:var(--pink-faint);border:1px dashed var(--pink);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px}
-  .tab-bar{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:4px;flex-wrap:wrap}
-  .log-item{display:flex;align-items:flex-start;gap:16px;padding:14px 20px!important}
-  .cal-box{background:var(--purple-faint);border:1.5px solid var(--purple);border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap}
-  h1{font-size:26px;font-weight:800;color:var(--ink);margin-bottom:4px;letter-spacing:-0.5px}
-  h2{font-size:20px;font-weight:700;color:var(--ink);margin-bottom:16px}
-  .lbl{font-size:13px;font-weight:600;color:var(--pink);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
-  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
-  .empty-state{color:var(--ink-light);font-size:14px;padding:20px 0;text-align:center;line-height:1.6}
-  /* loading overlay */
-  .loading-bar{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pink),var(--purple));z-index:9999;animation:loadpulse 1s ease-in-out infinite}
-  @keyframes loadpulse{0%{opacity:1}50%{opacity:0.4}100%{opacity:1}}
-  .sync-status{font-size:12px;color:var(--ink-light);display:flex;align-items:center;gap:5px}
-  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
-  .sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite}
-  .sync-dot.error{background:var(--red)}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-  /* not-configured banner */
-  .setup-banner{background:var(--amber-faint);border:1.5px solid var(--amber);border-radius:12px;padding:16px 20px;margin:24px;font-size:14px;color:var(--ink-mid);line-height:1.6}
-  .setup-banner strong{color:var(--ink)}
-</style>
-</head>
-<body>
-
-<!-- Loading bar -->
-<div class="loading-bar hidden" id="loading-bar"></div>
-
-<!-- NOT CONFIGURED NOTICE (shown when SCRIPT_URL is still placeholder) -->
-<div class="setup-banner hidden" id="setup-banner">
-  <strong>⚙️ Setup needed:</strong> Open this file, find <code>SCRIPT_URL</code> near the top of the &lt;script&gt; section, and replace the placeholder with your Google Apps Script deployment URL. See the setup guide for instructions.
-</div>
-
-<nav>
-  <div class="nav-logo" onclick="go('home')"><div class="nav-pill"></div>KitTrack</div>
-  <div style="display:flex;align-items:center;gap:12px">
-    <span class="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">Connected</span></span>
-    <div class="nav-tabs">
-      <button class="nav-tab active" id="tab-home" onclick="go('home')">🏠 Home</button>
-      <button class="nav-tab" id="tab-admin" onclick="adminClick()">Admin <span class="nav-badge hidden" id="pending-badge">0</span></button>
-    </div>
-  </div>
-</nav>
-
-<!-- PASSCODE MODAL -->
-<div class="modal-overlay hidden" id="pin-modal">
-  <div class="modal-box">
-    <div style="font-size:32px;margin-bottom:12px">🔒</div>
-    <div style="font-size:18px;font-weight:700;margin-bottom:6px">Admin Access</div>
-    <div style="font-size:13px;color:var(--ink-light);margin-bottom:24px">Enter your 4-digit passcode</div>
-    <div class="pin-row">
-      <input class="pin-input" id="p0" type="password" inputmode="numeric" maxlength="1" oninput="pi(0)" onkeydown="pk(0,event)">
-      <input class="pin-input" id="p1" type="password" inputmode="numeric" maxlength="1" oninput="pi(1)" onkeydown="pk(1,event)">
-      <input class="pin-input" id="p2" type="password" inputmode="numeric" maxlength="1" oninput="pi(2)" onkeydown="pk(2,event)">
-      <input class="pin-input" id="p3" type="password" inputmode="numeric" maxlength="1" oninput="pi(3)" onkeydown="pk(3,event)">
-    </div>
-    <div id="pin-err" class="hidden" style="font-size:13px;color:var(--red);font-weight:600;margin-bottom:16px">Incorrect — try again</div>
-    <div style="font-size:12px;color:var(--ink-light);margin-bottom:16px">Passcode resets when you close or refresh this page.</div>
-    <button class="btn-ghost" style="width:100%;padding:10px" onclick="closePin()">Cancel</button>
-  </div>
-</div>
-
-<!-- RETURN CONFIRM MODAL -->
-<div class="modal-overlay hidden" id="confirm-modal">
-  <div class="confirm-box">
-    <h3>Confirm return</h3>
-    <p id="confirm-msg"></p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn-primary" style="flex:1" onclick="confirmReturn(true)">Yes, that's me →</button>
-      <button class="btn-ghost" style="flex:1;padding:12px" onclick="confirmReturn(false)">Not me</button>
-    </div>
-  </div>
-</div>
-
-<!-- DELETE CONFIRM MODAL -->
-<div class="modal-overlay hidden" id="del-modal">
-  <div class="confirm-box">
-    <h3>Delete this entry?</h3>
-    <p>This can't be undone. The entry will be permanently removed.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn-danger" style="flex:1;padding:12px" onclick="confirmDelete(true)">Delete</button>
-      <button class="btn-ghost" style="flex:1;padding:12px" onclick="confirmDelete(false)">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- HOME -->
-<div id="v-home" class="page">
-  <div style="margin-bottom:36px;padding-top:8px">
-    <div class="lbl">ACRS Outreach</div>
-    <h1 style="font-size:30px">Outreach Kit Portal</h1>
-    <div style="font-size:15px;color:var(--ink-mid);margin-top:6px" id="home-status">Loading kit status…</div>
-  </div>
-  <div class="row" style="margin-bottom:32px" id="home-kits"></div>
-  <h2>What do you need?</h2>
-  <div class="action-grid">
-    <div class="action-card" onclick="go('request')">
-      <div style="font-size:28px">📬</div>
-      <div style="font-weight:700;font-size:15px">Request a Kit</div>
-      <div style="font-size:13px;color:var(--ink-light);line-height:1.4">Submit a request for an upcoming event</div>
-      <div style="font-size:13px;font-weight:600;color:var(--pink)">Get started →</div>
-    </div>
-    <div class="action-card" onclick="go('cio')">
-      <div style="font-size:28px">🔄</div>
-      <div style="font-weight:700;font-size:15px">Check In / Out</div>
-      <div style="font-size:13px;color:var(--ink-light);line-height:1.4">Quick tap to log a pickup or return</div>
-      <div style="font-size:13px;font-weight:600;color:var(--green)">Get started →</div>
-    </div>
-    <div class="action-card" onclick="go('report')">
-      <div style="font-size:28px">📊</div>
-      <div style="font-weight:700;font-size:15px">Post-Event Report</div>
-      <div style="font-size:13px;color:var(--ink-light);line-height:1.4">2-minute wrap-up after your event</div>
-      <div style="font-size:13px;font-weight:600;color:var(--purple)">Get started →</div>
-    </div>
-  </div>
-  <div class="qr-hint">
-    <div style="font-size:24px">📱</div>
-    <div>
-      <div style="font-size:14px;font-weight:600;color:var(--ink)">QR codes make check-in/out faster</div>
-      <div style="font-size:13px;color:var(--ink-mid)">Scan the code inside the kit lid to jump straight here.</div>
-    </div>
-  </div>
-</div>
-
-<!-- REQUEST -->
-<div id="v-request" class="page hidden">
-  <button class="btn-ghost" style="margin-bottom:24px" onclick="go('home')">← Back</button>
-  <div style="margin-bottom:28px"><h1>Request Outreach Materials</h1><div style="font-size:13px;color:var(--ink-light)">You don't need to pick a specific kit — we'll assign one.</div></div>
-  <div id="req-form">
-    <div class="card">
-      <div class="row">
-        <div class="form-group" style="flex:1"><label>Your name *</label><input type="text" id="rq-name" placeholder="Full name"></div>
-        <div class="form-group" style="flex:1"><label>Email</label><input type="email" id="rq-email" placeholder="you@acrs.org"></div>
-      </div>
-      <div class="row">
-        <div class="form-group" style="flex:1"><label>Department *</label><input type="text" id="rq-dept" placeholder="e.g. Behavioral Health"></div>
-        <div class="form-group" style="flex:1"><label>Program *</label><input type="text" id="rq-prog" placeholder="e.g. Health Outreach"></div>
-      </div>
-      <div class="form-group"><label>Event name *</label><input type="text" id="rq-event" placeholder="e.g. Beacon Hill Community Fair"></div>
-      <div class="form-group"><label>Event location</label><input type="text" id="rq-loc" placeholder="e.g. Seward Park, 5902 Lake Washington Blvd S"></div>
-      <div class="row">
-        <div class="form-group" style="flex:1"><label>Date needed *</label><input type="date" id="rq-date"></div>
-        <div class="form-group" style="flex:1"><label>Event start time</label><input type="time" id="rq-time"></div>
-        <div class="form-group" style="flex:1"><label>Return date / time</label><input type="date" id="rq-ret"><input type="time" id="rq-ret-time" style="margin-top:6px"></div>
-      </div>
-      <div class="form-group">
-        <label>Who are you connecting with at this event? *</label>
-        <textarea id="rq-population" placeholder="e.g. Unhoused community members, recent immigrants, seniors, general public at a health fair..."></textarea>
-      </div>
-      <div class="form-group"><label>Anything else? <span style="font-weight:400;color:var(--ink-light)">(optional)</span></label><textarea id="rq-notes" placeholder="Special needs, bilingual materials, large crowd..."></textarea></div>
-      <button class="btn-primary" id="req-submit-btn" onclick="submitReq()">Submit Request →</button>
-    </div>
-  </div>
-  <div id="req-ok" class="hidden">
-    <div class="success-box">
-      <div style="font-size:40px;margin-bottom:12px">📬</div>
-      <h2>Request submitted!</h2>
-      <p>Someone will confirm your kit assignment by email.</p>
-      <button class="btn-ghost" onclick="go('home')">Back to home</button>
-    </div>
-    <div class="cal-box">
-      <div>
-        <div style="font-weight:700;font-size:14px;color:var(--purple);margin-bottom:2px">📅 Add to your calendar</div>
-        <div style="font-size:13px;color:var(--ink-mid)">Download a calendar reminder for this event</div>
-      </div>
-      <button class="btn-download" onclick="downloadCal()">⬇ Download .ics</button>
-    </div>
-  </div>
-</div>
-
-<!-- CHECK IN/OUT -->
-<div id="v-cio" class="page hidden">
-  <button class="btn-ghost" style="margin-bottom:24px" onclick="go('home')">← Back</button>
-  <div id="cio-s1">
-    <div style="margin-bottom:28px"><h1 style="font-size:22px">Which kit?</h1><div style="font-size:13px;color:var(--ink-light)">Tap the kit you're using</div></div>
-    <div class="row" id="cio-kits"></div>
-  </div>
-  <div id="cio-s2" class="hidden">
-    <div style="margin-bottom:28px"><h1 style="font-size:22px" id="cio-kit-name"></h1><div style="font-size:13px;color:var(--ink-light)" id="cio-kit-stat"></div></div>
-    <div class="row">
-      <div class="card" id="cio-co-btn" style="flex:1;text-align:center;cursor:pointer;border:2px solid var(--border);margin:0" onclick="pickAction('checkout')">
-        <div style="font-size:36px;margin-bottom:10px">🧳</div>
-        <div style="font-weight:700;font-size:16px;margin-bottom:4px">Check Out</div>
-        <div style="font-size:13px;color:var(--ink-light)">I'm taking this kit</div>
-      </div>
-      <div class="card" id="cio-ret-btn" style="flex:1;text-align:center;cursor:pointer;border:2px solid var(--border);margin:0" onclick="pickAction('return')">
-        <div style="font-size:36px;margin-bottom:10px">↩️</div>
-        <div style="font-weight:700;font-size:16px;margin-bottom:4px">Return</div>
-        <div style="font-size:13px;color:var(--ink-light)">I'm bringing it back</div>
-      </div>
-    </div>
-  </div>
-  <div id="cio-s3" class="hidden">
-    <div style="margin-bottom:28px"><h1 style="font-size:22px" id="cio-act-title"></h1><div style="font-size:13px;color:var(--ink-light)" id="cio-act-sub"></div></div>
-    <div class="card">
-      <div class="form-group"><label>Your name</label><input type="text" id="cio-name" placeholder="Type your name"></div>
-      <div class="form-group" id="cio-ev-grp"><label>Event or program</label><input type="text" id="cio-ev" placeholder="e.g. South Park Health Fair"></div>
-      <div class="form-group hidden" id="cio-iss-grp">
-        <label>Any issues?</label>
-        <div style="display:flex;gap:8px;margin-bottom:10px">
-          <button class="toggle-half selected" id="btn-no" onclick="setIss(false)">No issues</button>
-          <button class="toggle-half" id="btn-yes" onclick="setIss(true)">Something to flag</button>
-        </div>
-        <textarea id="cio-notes" class="hidden" placeholder="What's missing or damaged?"></textarea>
-      </div>
-      <button class="btn-primary" id="cio-go" onclick="doCheckInOut()">Confirm →</button>
-    </div>
-  </div>
-  <div id="cio-done" class="hidden">
-    <div class="success-box">
-      <div style="font-size:48px;margin-bottom:12px" id="cio-done-ico">✅</div>
-      <h2 id="cio-done-h"></h2>
-      <p id="cio-done-p"></p>
-      <button class="btn-pink-sm hidden" id="cio-rpt-btn" style="margin-bottom:12px" onclick="goPrefillReport()">Quick Post-Event Report →</button><br>
-      <button class="btn-ghost" style="margin-top:8px" onclick="go('home')">Done</button>
-    </div>
-  </div>
-</div>
-
-<!-- REPORT -->
-<div id="v-report" class="page hidden">
-  <button class="btn-ghost" id="rpt-back" style="margin-bottom:24px" onclick="go('home')">← Back</button>
-  <div style="margin-bottom:28px"><h1>Post-Event Report</h1><div style="font-size:13px;color:var(--ink-light)">Just a few quick questions — about 2 minutes.</div></div>
-  <div id="rpt-form">
-    <div class="card">
-      <div class="row">
-        <div class="form-group" style="flex:1"><label>Your name *</label><input type="text" id="rpt-name" placeholder="Your name"></div>
-        <div class="form-group" style="flex:1"><label>Event *</label><input type="text" id="rpt-event" placeholder="Event name"></div>
-      </div>
-      <div class="form-group">
-        <label>Estimated attendance *</label>
-        <div class="toggle-group">
-          <button class="toggle-btn" onclick="pickAtt(this)">Under 20</button>
-          <button class="toggle-btn" onclick="pickAtt(this)">20–50</button>
-          <button class="toggle-btn" onclick="pickAtt(this)">50–100</button>
-          <button class="toggle-btn" onclick="pickAtt(this)">100–200</button>
-          <button class="toggle-btn" onclick="pickAtt(this)">200+</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Who did you connect with at this event? *</label>
-        <textarea id="rpt-population" placeholder="e.g. Unhoused community members, seniors, recent immigrants, general public..."></textarea>
-      </div>
-      <div class="form-group"><label>What went well? *</label><textarea id="rpt-well" placeholder="Community response, connections made..."></textarea></div>
-      <div class="form-group"><label>Anything to improve? <span style="font-weight:400;color:var(--ink-light)">(optional)</span></label><textarea id="rpt-imp" placeholder="Logistics, materials, timing..."></textarea></div>
-      <div class="form-group">
-        <label>Kit condition at return</label>
-        <div class="cond-group">
-          <button class="cond-btn selected" id="c-good" onclick="pickCond('good')">All good ✅</button>
-          <button class="cond-btn" id="c-minor" onclick="pickCond('minor')">Minor issue 🔧</button>
-          <button class="cond-btn" id="c-miss" onclick="pickCond('missing')">Something missing ⚠️</button>
-        </div>
-      </div>
-      <button class="btn-primary" id="rpt-submit-btn" onclick="submitRpt()">Submit Report →</button>
-    </div>
-  </div>
-  <div id="rpt-ok" class="success-box hidden">
-    <div style="font-size:40px;margin-bottom:12px">🎉</div>
-    <h2>Report submitted!</h2>
-    <p>Thank you for helping us track these items — we need this for reporting for certain grants and to assess and evaluate our overall outreach program.</p>
-    <p>If you'd like a copy of this data, message us at <a href="mailto:nateb@acrs.org" style="color:var(--pink)">nateb@acrs.org</a>.</p>
-    <button class="btn-ghost" style="margin-top:8px" onclick="go('home')">Back to home</button>
-  </div>
-</div>
-
-<!-- ADMIN -->
-<div id="v-admin" class="page-wide hidden">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
-    <div>
-      <h1>Kit Dashboard</h1>
-      <div style="font-size:13px;color:var(--ink-light)">Admin view · ACRS Outreach · <span id="adm-sync-note">Synced with Google Sheets</span></div>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <button class="btn-ghost" onclick="loadData(true)" style="font-size:13px">↻ Refresh</button>
-      <div id="adm-banner" class="hidden" style="background:var(--amber-faint);border:1.5px solid var(--amber);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;color:var(--amber)"></div>
-    </div>
-  </div>
-  <div class="row" style="margin-bottom:24px" id="adm-kits"></div>
-  <div class="tab-bar">
-    <button class="nav-tab active" id="adm-t1" onclick="admTab('req')">Requests</button>
-    <button class="nav-tab" id="adm-t2" onclick="admTab('reports')">Post-Event Reports</button>
-    <button class="nav-tab" id="adm-t3" onclick="admTab('log')">Activity Log</button>
-  </div>
-  <div id="adm-req"></div>
-  <div id="adm-reports" class="hidden"></div>
-  <div id="adm-log" class="hidden"></div>
-</div>
-
-<script>
 // ================================================================
-// !! PASTE YOUR APPS SCRIPT URL BELOW !!
-// After deploying, replace the placeholder with your actual URL.
-// It will look like: https://script.google.com/macros/s/ABC.../exec
+// KitTrack — Google Apps Script Backend
+// Paste this entire file into Extensions > Apps Script in your Sheet
+// Then: Deploy > New deployment > Web app > Execute as: Me > Anyone
 // ================================================================
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxM_BYpYH-e5iaQ7qdH1C11eQKzTaa4HGVm1JDoU4b_VPh6Yy3BZ82O4u0MtGKN_VaL/exec";
 
-// ================================================================
-// STATE
-// ================================================================
-const CODE = "3639";
-let unlocked = false;
-let selKit=null, selAct=null, hasIss=false, rptCond="good", rptAtt="", prefill=null;
-let lastReq = null;
-let pendingDeleteType=null, pendingDeleteId=null;
-let pendingReturnData=null;
+const SHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
 
-let kits=[], reqs=[], txns=[], reports=[];
+// Sheet tab names — these will be auto-created if they don't exist
+const TABS = {
+  kits:    "Kits",
+  reqs:    "Requests",
+  txns:    "Transactions",
+  reports: "Reports"
+};
 
-// ================================================================
-// HELPERS
-// ================================================================
-function fmt(s){if(!s)return"—";return new Date(s).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
-function fmtT(s){if(!s)return"—";const d=new Date(s);return d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})+" · "+d.toLocaleDateString("en-US",{month:"short",day:"numeric"})}
-function el(id){return document.getElementById(id)}
-function setLoading(on){el("loading-bar").classList.toggle("hidden",!on)}
-function setSyncStatus(state, text){
-  const dot=el("sync-dot"), txt=el("sync-text");
-  dot.className="sync-dot"+(state==="syncing"?" syncing":state==="error"?" error":"");
-  txt.textContent=text;
-}
-
-// ================================================================
-// API CALLS
-// ================================================================
-function isConfigured(){ return SCRIPT_URL && SCRIPT_URL.startsWith("https://script.google.com/macros/s/"); }
-
-async function api(payload) {
-  if (!isConfigured()) throw new Error("Not configured");
-  const res = await fetch(SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify(payload),
-    headers: {"Content-Type":"text/plain"} // required for Apps Script CORS
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error);
-  return data;
-}
-
-async function loadData(showLoader=false) {
-  if (!isConfigured()) {
-    el("setup-banner").classList.remove("hidden");
-    setSyncStatus("error", "Not configured");
-    // Fall back to empty state
-    kits=[
-      {id:"kit-a",name:"Outreach Kit A",status:"available",checkedOutTo:null,checkedOutSince:null,event:null,lastVerified:""},
-      {id:"kit-b",name:"Outreach Kit B",status:"available",checkedOutTo:null,checkedOutSince:null,event:null,lastVerified:""}
-    ];
-    reqs=[]; txns=[]; reports=[];
-    renderHome(); updBadge();
-    return;
-  }
-  if (showLoader) setLoading(true);
-  setSyncStatus("syncing","Syncing…");
+// ── Entry point for all requests ──────────────────────────────────
+function doPost(e) {
   try {
-    const res = await fetch(SCRIPT_URL, {method:"POST",body:JSON.stringify({action:"load"}),headers:{"Content-Type":"text/plain"}});
-    const data = await res.json();
-    kits    = data.kits    || [];
-    reqs    = data.reqs    || [];
-    txns    = data.txns    || [];
-    reports = data.reports || [];
-    setSyncStatus("ok","Synced");
-    renderHome(); updBadge();
-    if (unlocked) renderAdmin();
-  } catch(e) {
-    setSyncStatus("error","Sync error");
-    console.error(e);
-  } finally {
-    setLoading(false);
+    const payload = JSON.parse(e.postData.contents);
+    const action  = payload.action;
+    let result;
+
+    if      (action === "load")         result = loadAll();
+    else if (action === "saveKits")     result = saveKits(payload.kits);
+    else if (action === "addReq")       result = addRow(TABS.reqs,  reqToRow(payload.req));
+    else if (action === "updateReq")    result = updateReq(payload.id, payload.fields);
+    else if (action === "deleteReq")    result = deleteRow(TABS.reqs, payload.id);
+    else if (action === "addTxn")       result = addRow(TABS.txns,  txnToRow(payload.txn));
+    else if (action === "addReport")    result = addRow(TABS.reports, rptToRow(payload.report));
+    else if (action === "deleteReport") result = deleteRow(TABS.reports, payload.id);
+    else result = { error: "Unknown action: " + action };
+
+    return respond(result);
+  } catch(err) {
+    return respond({ error: err.toString() });
   }
 }
 
-async function apiCall(payload, onSuccess) {
-  setLoading(true);
-  setSyncStatus("syncing","Saving…");
-  try {
-    await api(payload);
-    setSyncStatus("ok","Saved");
-    if (onSuccess) onSuccess();
-  } catch(e) {
-    setSyncStatus("error","Save failed");
-    alert("Could not save: "+e.message);
-  } finally {
-    setLoading(false);
-  }
+function doGet(e) {
+  // Allow GET for load (easier for initial fetch)
+  return respond(loadAll());
 }
 
-// ================================================================
-// ROUTER
-// ================================================================
-function go(v) {
-  ["home","request","cio","report","admin"].forEach(x=>el("v-"+x).classList.add("hidden"));
-  el("tab-home").classList.toggle("active",v!=="admin");
-  el("tab-admin").classList.toggle("active",v==="admin");
-  if (v==="home"){el("v-home").classList.remove("hidden");loadData();}
-  else if(v==="request"){el("v-request").classList.remove("hidden");el("req-form").classList.remove("hidden");el("req-ok").classList.add("hidden");}
-  else if(v==="cio"){el("v-cio").classList.remove("hidden");cioReset();}
-  else if(v==="report"||v==="rptpre"){
-    el("v-report").classList.remove("hidden");
-    el("rpt-form").classList.remove("hidden");el("rpt-ok").classList.add("hidden");
-    el("rpt-back").classList.toggle("hidden",v==="rptpre");
-    if(v==="rptpre"&&prefill){el("rpt-name").value=prefill.person||"";el("rpt-name").readOnly=true;el("rpt-event").value=prefill.event||"";el("rpt-event").readOnly=true;}
-    else{el("rpt-name").readOnly=false;el("rpt-event").readOnly=false;rptAtt="";rptCond="good";el("rpt-population").value="";
-      document.querySelectorAll(".toggle-group .toggle-btn").forEach(b=>b.classList.remove("selected"));
-      ["good","minor","miss"].forEach(x=>el("c-"+x).classList.toggle("selected",x==="good"));
+// ── Load all data ─────────────────────────────────────────────────
+function loadAll() {
+  ensureSheets();
+  return {
+    kits:    getRows(TABS.kits).map(rowToKit),
+    reqs:    getRows(TABS.reqs).map(rowToReq),
+    txns:    getRows(TABS.txns).map(rowToTxn),
+    reports: getRows(TABS.reports).map(rowToRpt)
+  };
+}
+
+// ── Kit helpers ───────────────────────────────────────────────────
+function saveKits(kits) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sh = ss.getSheetByName(TABS.kits);
+  // Clear data rows (keep header)
+  if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow()-1, sh.getLastColumn()).clearContent();
+  kits.forEach(k => sh.appendRow([k.id, k.name, k.status, k.checkedOutTo||"", k.checkedOutSince||"", k.event||"", k.lastVerified||""]));
+  return { ok: true };
+}
+function rowToKit(r) {
+  return { id:r[0], name:r[1], status:r[2], checkedOutTo:r[3]||null, checkedOutSince:r[4]||null, event:r[5]||null, lastVerified:r[6]||"" };
+}
+
+// ── Request helpers ───────────────────────────────────────────────
+function reqToRow(r) {
+  return [r.id, r.name, r.email||"", r.department||"", r.program, r.event, r.location||"", r.dateNeeded, r.startTime||"", r.dateReturn||"", r.retTime||"", r.population||"", r.notes||"", r.status, r.assignedKit||"", r.submittedAt];
+}
+function rowToReq(r) {
+  return { id:r[0], name:r[1], email:r[2], department:r[3], program:r[4], event:r[5], location:r[6], dateNeeded:r[7], startTime:r[8], dateReturn:r[9], retTime:r[10], population:r[11], notes:r[12], status:r[13], assignedKit:r[14]||null, submittedAt:r[15] };
+}
+function updateReq(id, fields) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sh = ss.getSheetByName(TABS.reqs);
+  const data = sh.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === id) {
+      // status is col 14 (index 13), assignedKit is col 15 (index 14)
+      if (fields.status !== undefined)      sh.getRange(i+1, 14).setValue(fields.status);
+      if (fields.assignedKit !== undefined) sh.getRange(i+1, 15).setValue(fields.assignedKit||"");
+      return { ok: true };
     }
   }
-  else if(v==="admin"){el("v-admin").classList.remove("hidden");loadData(true);}
+  return { error: "Row not found: " + id };
 }
 
-// ================================================================
-// HOME
-// ================================================================
-function renderHome(){
-  const a=kits.filter(k=>k.status==="available").length;
-  el("home-status").textContent=a===2?"Both kits are available right now.":a===1?"One kit is available.":"Both kits are currently checked out.";
-  el("home-kits").innerHTML=kits.map(k=>`
-    <div class="kit-card ${k.status}" style="flex:1 1 180px;padding:16px 20px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <span style="font-size:22px">🧳</span><span style="font-weight:700;font-size:15px">${k.name}</span>
-      </div>
-      <span class="status-badge ${k.status}">
-        <span class="status-dot ${k.status}"></span>
-        ${k.status==="available"?"Available":k.status==="checked-out"?"Out · "+k.checkedOutTo:"Needs Attention"}
-      </span>
-    </div>`).join("");
+// ── Transaction helpers ───────────────────────────────────────────
+function txnToRow(t) {
+  return [t.id, t.type, t.kit, t.person, t.event||"", t.timestamp, t.notes||""];
+}
+function rowToTxn(r) {
+  return { id:r[0], type:r[1], kit:r[2], person:r[3], event:r[4], timestamp:r[5], notes:r[6] };
 }
 
-// ================================================================
-// PASSCODE
-// ================================================================
-function adminClick(){if(unlocked){go("admin");return;}el("pin-modal").classList.remove("hidden");setTimeout(()=>el("p0").focus(),50);}
-function closePin(){el("pin-modal").classList.add("hidden");[0,1,2,3].forEach(i=>{el("p"+i).value="";el("p"+i).classList.remove("error");});el("pin-err").classList.add("hidden");}
-function pi(i){
-  const v=el("p"+i).value;if(v&&i<3)el("p"+(i+1)).focus();
-  const c=[0,1,2,3].map(n=>el("p"+n).value).join("");
-  if(c.length===4){
-    if(c===CODE){setTimeout(()=>{unlocked=true;closePin();go("admin");},120);}
-    else{[0,1,2,3].forEach(n=>{el("p"+n).value="";el("p"+n).classList.add("error");});el("pin-err").classList.remove("hidden");setTimeout(()=>{[0,1,2,3].forEach(n=>el("p"+n).classList.remove("error"));el("p0").focus();},800);}
+// ── Report helpers ────────────────────────────────────────────────
+function rptToRow(r) {
+  return [r.id, r.name, r.event, r.attendance, r.population||"", r.kitCondition, r.went, r.improve||"", r.submittedAt];
+}
+function rowToRpt(r) {
+  return { id:r[0], name:r[1], event:r[2], attendance:r[3], population:r[4], kitCondition:r[5], went:r[6], improve:r[7], submittedAt:r[8] };
+}
+
+// ── Generic sheet helpers ─────────────────────────────────────────
+function getRows(tabName) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sh = ss.getSheetByName(tabName);
+  if (!sh || sh.getLastRow() < 2) return [];
+  return sh.getRange(2, 1, sh.getLastRow()-1, sh.getLastColumn()).getValues()
+    .filter(r => r[0] !== ""); // skip blank rows
+}
+
+function addRow(tabName, row) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  ss.getSheetByName(tabName).appendRow(row);
+  return { ok: true };
+}
+
+function deleteRow(tabName, id) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sh = ss.getSheetByName(tabName);
+  const data = sh.getDataRange().getValues();
+  for (let i = data.length - 1; i >= 1; i--) {
+    if (data[i][0] === id) { sh.deleteRow(i+1); return { ok: true }; }
   }
-}
-function pk(i,e){if(e.key==="Backspace"&&!el("p"+i).value&&i>0)el("p"+(i-1)).focus();if(e.key==="Escape")closePin();}
-
-// ================================================================
-// CALENDAR
-// ================================================================
-function makeICS(req){
-  const dp=req.dateNeeded.split("-"),tp=(req.startTime||"09:00").split(":");
-  const start=new Date(+dp[0],+dp[1]-1,+dp[2],+tp[0],+tp[1]);
-  const end=new Date(start.getTime()+2*60*60*1000);
-  function icsDate(d){return d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")+"T"+String(d.getHours()).padStart(2,"0")+String(d.getMinutes()).padStart(2,"0")+"00";}
-  const desc=["ACRS Outreach Kit Request","Requested by: "+req.name,"Department: "+(req.department||""),"Program: "+req.program,"Population: "+(req.population||""),"Location: "+(req.location||"TBD"),"Return: "+(req.dateReturn||req.dateNeeded)+(req.retTime?" at "+req.retTime:""),req.notes?"Notes: "+req.notes:""].filter(Boolean).join("\\n");
-  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//KitTrack//ACRS Outreach//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT","UID:kittrack-"+req.id+"@acrs.org","DTSTAMP:"+icsDate(new Date()),"DTSTART:"+icsDate(start),"DTEND:"+icsDate(end),"SUMMARY:🧳 Outreach Kit — "+req.event,"DESCRIPTION:"+desc,"LOCATION:"+(req.location||""),"STATUS:CONFIRMED","END:VEVENT","END:VCALENDAR"].join("\r\n");
-}
-function downloadCal(){
-  if(!lastReq)return;
-  const blob=new Blob([makeICS(lastReq)],{type:"text/calendar;charset=utf-8"});
-  const url=URL.createObjectURL(blob);const a=document.createElement("a");
-  a.href=url;a.download=("KitRequest_"+lastReq.event).replace(/\s+/g,"_")+".ics";
-  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  return { error: "Row not found: " + id };
 }
 
-// ================================================================
-// REQUEST FORM
-// ================================================================
-async function submitReq(){
-  const n=el("rq-name").value.trim(),dept=el("rq-dept").value.trim(),p=el("rq-prog").value.trim(),
-        e=el("rq-event").value.trim(),d=el("rq-date").value,pop=el("rq-population").value.trim();
-  if(!n||!dept||!p||!e||!d||!pop){alert("Please fill in all required fields (name, department, program, event, date, and population).");return;}
-  const req={id:"r"+Date.now(),name:n,department:dept,program:p,event:e,
-    location:el("rq-loc").value.trim(),dateNeeded:d,startTime:el("rq-time").value||"09:00",
-    dateReturn:el("rq-ret").value,retTime:el("rq-ret-time").value,
-    population:pop,notes:el("rq-notes").value.trim(),email:el("rq-email").value.trim(),
-    status:"pending",assignedKit:null,submittedAt:new Date().toISOString()};
-
-  el("req-submit-btn").disabled=true;
-  await apiCall({action:"addReq",req}, ()=>{
-    reqs.push(req); lastReq=req; updBadge();
-    el("req-form").classList.add("hidden");el("req-ok").classList.remove("hidden");
-    // mailto notification
-    const subject=encodeURIComponent("New Kit Request: "+req.event);
-    const body=encodeURIComponent("A new outreach kit request was submitted via KitTrack.\n\nName: "+req.name+"\nEmail: "+(req.email||"not provided")+"\nDepartment: "+(req.department||"")+"\nProgram: "+req.program+"\nEvent: "+req.event+"\nLocation: "+(req.location||"not provided")+"\nDate: "+req.dateNeeded+(req.startTime?" at "+req.startTime:"")+"\nReturn: "+(req.dateReturn||"")+(req.retTime?" at "+req.retTime:"")+"\nPopulation: "+(req.population||"")+"\n"+(req.notes?"Notes: "+req.notes+"\n":"")+"\nLog in to KitTrack to assign a kit and approve this request.");
-    window.location.href="mailto:nateb@acrs.org?subject="+subject+"&body="+body;
-  });
-  el("req-submit-btn").disabled=false;
-}
-
-// ================================================================
-// CSV EXPORT
-// ================================================================
-function csvEscape(v){if(v===null||v===undefined)return"";const s=String(v);if(s.includes(",")||s.includes('"')||s.includes("\n"))return'"'+s.replace(/"/g,'""')+'"';return s;}
-function downloadCSV(rows,filename){const csv=rows.map(r=>r.map(csvEscape).join(",")).join("\n");const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
-function today(){return new Date().toISOString().slice(0,10).replace(/-/g,"");}
-function exportRequests(){
-  const header=["Submitted","Name","Email","Department","Program","Event","Location","Date Needed","Start Time","Return Date","Return Time","Population Served","Status","Assigned Kit","Notes"];
-  downloadCSV([header,...reqs.map(r=>[fmtT(r.submittedAt),r.name,r.email,r.department||"",r.program,r.event,r.location,r.dateNeeded,r.startTime,r.dateReturn,r.retTime||"",r.population||"",r.status,r.assignedKit||"",r.notes])],"ACRS_Kit_Requests_"+today()+".csv");
-}
-function exportReports(){
-  const header=["Submitted","Name","Event","Attendance","Population Served","Kit Condition","What Went Well","Areas to Improve"];
-  downloadCSV([header,...reports.map(r=>[fmtT(r.submittedAt),r.name,r.event,r.attendance,r.population||"",r.kitCondition,r.went,r.improve||""])],"ACRS_PostEvent_Reports_"+today()+".csv");
-}
-
-// ================================================================
-// CHECK IN/OUT
-// ================================================================
-function cioReset(){
-  selKit=null;selAct=null;hasIss=false;
-  ["cio-s1","cio-s2","cio-s3","cio-done"].forEach((x,i)=>el(x).classList.toggle("hidden",i!==0));
-  el("cio-name").value="";el("cio-ev").value="";el("cio-notes").value="";
-  el("cio-kits").innerHTML=kits.map(k=>`
-    <div class="kit-card ${k.status}" style="cursor:pointer;flex:1 1 200px" onclick="pickKit('${k.id}')">
-      <div style="font-size:32px;margin-bottom:10px">🧳</div>
-      <div style="font-weight:700;font-size:17px;margin-bottom:8px">${k.name}</div>
-      <span class="status-badge ${k.status}"><span class="status-dot ${k.status}"></span>${k.status==="available"?"Available":k.status==="checked-out"?"Out · "+k.checkedOutTo:"Needs Attention"}</span>
-    </div>`).join("");
-}
-function pickKit(id){
-  selKit=id;const k=kits.find(x=>x.id===id);
-  el("cio-kit-name").textContent=k.name;
-  el("cio-kit-stat").textContent="Status: "+(k.status==="available"?"Available":"Checked out to "+k.checkedOutTo);
-  el("cio-co-btn").style.opacity=k.status==="checked-out"?"0.4":"1";el("cio-co-btn").style.cursor=k.status==="checked-out"?"not-allowed":"pointer";
-  el("cio-ret-btn").style.opacity=k.status==="available"?"0.4":"1";el("cio-ret-btn").style.cursor=k.status==="available"?"not-allowed":"pointer";
-  el("cio-s1").classList.add("hidden");el("cio-s2").classList.remove("hidden");
-}
-function pickAction(a){
-  const k=kits.find(x=>x.id===selKit);
-  if(a==="checkout"&&k.status==="checked-out")return;
-  if(a==="return"&&k.status==="available")return;
-  selAct=a;
-  el("cio-act-title").textContent=a==="checkout"?"Checking out":"Returning";
-  el("cio-act-sub").textContent=k.name;
-  el("cio-ev-grp").classList.toggle("hidden",a==="return");
-  el("cio-iss-grp").classList.toggle("hidden",a==="checkout");
-  el("cio-go").textContent=a==="checkout"?"Confirm Check-Out →":"Confirm Return →";
-  el("cio-s2").classList.add("hidden");el("cio-s3").classList.remove("hidden");
-}
-function setIss(v){hasIss=v;el("btn-no").classList.toggle("selected",!v);el("btn-yes").classList.toggle("selected",v);el("cio-notes").classList.toggle("hidden",!v);}
-function doCheckInOut(){
-  const name=el("cio-name").value.trim(),ev=el("cio-ev").value.trim();
-  if(!name){alert("Please enter your name.");return;}
-  if(selAct==="checkout"&&!ev){alert("Please enter an event name.");return;}
-  const k=kits.find(x=>x.id===selKit);
-  if(selAct==="return"&&k.checkedOutTo){
-    pendingReturnData={name,ev,k,notes:hasIss?el("cio-notes").value.trim():""};
-    el("confirm-msg").textContent=`This kit is currently checked out to ${k.checkedOutTo} for "${k.event}". Are you ${k.checkedOutTo}?`;
-    el("confirm-modal").classList.remove("hidden");return;
-  }
-  finalizeCheckInOut(name,ev,k,hasIss?el("cio-notes").value.trim():"");
-}
-function confirmReturn(yes){
-  el("confirm-modal").classList.add("hidden");
-  if(!yes)return;
-  const{name,ev,k,notes}=pendingReturnData;pendingReturnData=null;
-  finalizeCheckInOut(name,ev,k,notes);
-}
-async function finalizeCheckInOut(name,ev,k,notes){
-  const ts=new Date().toISOString();
-  const prevStatus=k.status, prevTo=k.checkedOutTo, prevSince=k.checkedOutSince, prevEv=k.event;
-  if(selAct==="checkout"){k.status="checked-out";k.checkedOutTo=name;k.checkedOutSince=ts;k.event=ev;}
-  else{k.status="available";k.checkedOutTo=null;k.checkedOutSince=null;k.event=null;}
-  const txn={id:"t"+Date.now(),type:selAct,kit:k.name,person:name,event:ev,timestamp:ts,notes};
-
-  el("cio-go").disabled=true;
-  // Save kit status and transaction in parallel
-  try {
-    await Promise.all([
-      api({action:"saveKits",kits}),
-      api({action:"addTxn",txn})
-    ]);
-    txns.push(txn);
-    prefill={person:name,event:ev};
-    setSyncStatus("ok","Saved");
-  } catch(e) {
-    // Revert on failure
-    k.status=prevStatus;k.checkedOutTo=prevTo;k.checkedOutSince=prevSince;k.event=prevEv;
-    setSyncStatus("error","Save failed");
-    alert("Could not save check-in/out. Please try again.");
-    el("cio-go").disabled=false;return;
-  }
-  el("cio-go").disabled=false;
-  el("cio-done-ico").textContent=selAct==="checkout"?"🧳":"✅";
-  el("cio-done-h").textContent=selAct==="checkout"?k.name+" is checked out!":k.name+" returned — thank you!";
-  el("cio-done-p").textContent=selAct==="checkout"?"Logged to "+name+" · "+ev:"Return logged for "+name;
-  el("cio-rpt-btn").classList.toggle("hidden",selAct==="checkout");
-  el("cio-s3").classList.add("hidden");el("cio-done").classList.remove("hidden");
-}
-function goPrefillReport(){go("rptpre");}
-
-// ================================================================
-// REPORT
-// ================================================================
-function pickAtt(b){document.querySelectorAll(".toggle-group .toggle-btn").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");rptAtt=b.textContent;}
-function pickCond(v){rptCond=v;["good","minor","miss"].forEach(x=>el("c-"+x).classList.toggle("selected",(v==="good"&&x==="good")||(v==="minor"&&x==="minor")||(v==="missing"&&x==="miss")));}
-async function submitRpt(){
-  const n=el("rpt-name").value.trim(),e=el("rpt-event").value.trim(),w=el("rpt-well").value.trim(),pop=el("rpt-population").value.trim();
-  if(!n||!e||!rptAtt||!w||!pop){alert("Please fill in all required fields.");return;}
-  const report={id:"rpt"+Date.now(),name:n,event:e,attendance:rptAtt,population:pop,went:w,improve:el("rpt-imp").value.trim(),kitCondition:rptCond,submittedAt:new Date().toISOString()};
-  el("rpt-submit-btn").disabled=true;
-  await apiCall({action:"addReport",report},()=>{
-    reports.push(report);
-    el("rpt-form").classList.add("hidden");el("rpt-ok").classList.remove("hidden");
-    prefill=null;el("rpt-name").readOnly=false;el("rpt-event").readOnly=false;
-  });
-  el("rpt-submit-btn").disabled=false;
-}
-
-// ================================================================
-// ADMIN — DELETE
-// ================================================================
-function askDelete(type,id){pendingDeleteType=type;pendingDeleteId=id;el("del-modal").classList.remove("hidden");}
-async function confirmDelete(yes){
-  el("del-modal").classList.add("hidden");
-  if(!yes){pendingDeleteType=null;pendingDeleteId=null;return;}
-  const type=pendingDeleteType,id=pendingDeleteId;
-  pendingDeleteType=null;pendingDeleteId=null;
-  await apiCall(
-    {action:type==="req"?"deleteReq":"deleteReport",id},
-    ()=>{
-      if(type==="req"){const i=reqs.findIndex(r=>r.id===id);if(i>-1)reqs.splice(i,1);}
-      else{const i=reports.findIndex(r=>r.id===id);if(i>-1)reports.splice(i,1);}
-      renderAdmin();
+// ── Ensure all sheets + headers exist ────────────────────────────
+function ensureSheets() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const headers = {
+    [TABS.kits]:    ["id","name","status","checkedOutTo","checkedOutSince","event","lastVerified"],
+    [TABS.reqs]:    ["id","name","email","department","program","event","location","dateNeeded","startTime","dateReturn","retTime","population","notes","status","assignedKit","submittedAt"],
+    [TABS.txns]:    ["id","type","kit","person","event","timestamp","notes"],
+    [TABS.reports]: ["id","name","event","attendance","population","kitCondition","went","improve","submittedAt"]
+  };
+  Object.entries(headers).forEach(([name, cols]) => {
+    let sh = ss.getSheetByName(name);
+    if (!sh) {
+      sh = ss.insertSheet(name);
+      sh.appendRow(cols);
+      sh.getRange(1,1,1,cols.length).setFontWeight("bold").setBackground("#f3f4f6");
+      sh.setFrozenRows(1);
     }
-  );
-}
-
-// ================================================================
-// ADMIN — RENDER
-// ================================================================
-function updBadge(){const c=reqs.filter(r=>r.status==="pending").length;el("pending-badge").textContent=c;el("pending-badge").classList.toggle("hidden",c===0);}
-function renderAdmin(){
-  updBadge();
-  const p=reqs.filter(r=>r.status==="pending");
-  if(p.length>0){el("adm-banner").textContent=p.length+" pending request"+(p.length>1?"s":"");el("adm-banner").classList.remove("hidden");}else el("adm-banner").classList.add("hidden");
-  el("adm-kits").innerHTML=kits.map(k=>`
-    <div class="kit-card ${k.status}" style="flex:1 1 240px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-        <span style="font-size:28px">🧳</span>
-        <span class="status-badge ${k.status}"><span class="status-dot ${k.status}"></span>${k.status==="available"?"Available":k.status==="checked-out"?"Checked Out":"Needs Attention"}</span>
-      </div>
-      <div style="font-weight:700;font-size:18px;margin-bottom:4px">${k.name}</div>
-      ${k.status==="checked-out"?`<div style="font-size:13px;color:var(--ink-mid);margin-bottom:12px"><div>👤 ${k.checkedOutTo}</div><div>📋 ${k.event}</div><div>🕐 Since ${fmt(k.checkedOutSince)}</div></div>`:`<div style="font-size:13px;color:var(--ink-light);margin-bottom:12px">Last verified ${fmt(k.lastVerified)}</div>`}
-      <div style="display:flex;gap:8px">
-        ${k.status!=="needs-attention"?`<button class="btn-ghost" onclick="flagKit('${k.id}')">Flag issue</button>`:""}
-        ${k.status==="needs-attention"?`<button class="btn-green" onclick="fixKit('${k.id}')">Mark resolved</button>`:""}
-      </div>
-    </div>`).join("");
-  renderReqs();renderRpts();renderLog();
-}
-
-function renderReqs(){
-  el("adm-req").innerHTML=`<div class="section-header"><h2 style="margin:0">Kit Requests</h2><button class="btn-download" onclick="exportRequests()">⬇ Export CSV</button></div>`+
-  (reqs.length===0?`<div class="empty-state">📭 No requests yet.<br><span style="font-size:12px">Requests submitted by staff will appear here.</span></div>`:
-  reqs.map(r=>`<div class="card"><div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px"><div style="flex:1;min-width:200px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><span style="font-weight:700;font-size:16px">${r.name}</span><span class="badge ${r.status}">${r.status}</span>${r.assignedKit?`<span style="font-size:13px;color:var(--ink-light)">→ ${r.assignedKit}</span>`:""}</div><div style="font-size:13px;color:var(--ink-mid);display:flex;gap:12px;flex-wrap:wrap;margin-bottom:4px"><span>📋 ${r.event}</span><span>🏢 ${r.department||""} ${r.department&&r.program?"·":""} ${r.program}</span>${r.location?`<span>📍 ${r.location}</span>`:""}<span>📅 ${fmt(r.dateNeeded)}${r.startTime?" · "+r.startTime:""}</span><span style="color:var(--ink-light)">${fmtT(r.submittedAt)}</span></div>${r.population?`<div style="font-size:13px;color:var(--ink-mid);margin-bottom:4px">👥 <em>${r.population}</em></div>`:""} ${r.notes?`<div style="font-size:13px;color:var(--ink-light)">💬 ${r.notes}</div>`:""}</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${r.status==="pending"?`<select style="border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;background:white;cursor:pointer;font-family:inherit" onchange="approveReq('${r.id}',this.value)"><option value="">Assign kit…</option>${kits.filter(k=>k.status==="available").map(k=>`<option value="${k.name}">${k.name}</option>`).join("")}</select><button class="btn-ghost" onclick="denyReq('${r.id}')">Deny</button>`:""}<button class="btn-danger" onclick="askDelete('req','${r.id}')" title="Delete">🗑</button></div></div></div>`).join(""));
-}
-
-function renderRpts(){
-  el("adm-reports").innerHTML=`<div class="section-header"><h2 style="margin:0">Post-Event Reports</h2><button class="btn-download" onclick="exportReports()">⬇ Export CSV</button></div>`+
-  (reports.length===0?`<div class="empty-state">📋 No reports yet.<br><span style="font-size:12px">Reports submitted after events will appear here.</span></div>`:
-  reports.map(r=>`<div class="card"><div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px"><div><div style="font-weight:700;font-size:16px;margin-bottom:2px">${r.event}</div><div style="font-size:13px;color:var(--ink-mid)">Submitted by ${r.name} · ${fmtT(r.submittedAt)}</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span style="font-size:13px;padding:4px 10px;border-radius:20px;background:#f0edf5;color:var(--ink-mid);font-weight:600">👥 ${r.attendance}</span><span style="font-size:13px;padding:4px 10px;border-radius:20px;font-weight:600;background:${r.kitCondition==="good"?"var(--green-faint)":r.kitCondition==="minor"?"var(--amber-faint)":"var(--red-faint)"};color:${r.kitCondition==="good"?"var(--green)":r.kitCondition==="minor"?"var(--amber)":"var(--red)"}"> ${r.kitCondition==="good"?"✅ Kit OK":r.kitCondition==="minor"?"🔧 Minor issue":"⚠️ Missing items"}</span><button class="btn-danger" onclick="askDelete('rpt','${r.id}')" title="Delete">🗑</button></div></div>${r.population?`<div style="font-size:13px;color:var(--ink-mid);margin-bottom:6px">👥 <strong>Population:</strong> ${r.population}</div>`:""}<div style="font-size:13px;color:var(--ink-mid);margin-bottom:6px"><strong>What went well:</strong> ${r.went}</div>${r.improve?`<div style="font-size:13px;color:var(--ink-mid)"><strong>To improve:</strong> ${r.improve}</div>`:""}</div>`).join(""));
-}
-
-function renderLog(){
-  el("adm-log").innerHTML=`<div class="section-header"><h2 style="margin:0">Activity Log</h2><span style="font-size:13px;color:var(--ink-light)">Check-in/out events in reverse chronological order</span></div>`+
-  (txns.length===0?`<div class="empty-state">📂 No activity yet.<br><span style="font-size:12px">Check-in and check-out events will appear here as staff use the kits.</span></div>`:
-  [...txns].reverse().map(t=>`<div class="card log-item"><div style="font-size:22px;flex-shrink:0">${t.type==="checkout"?"🧳":"↩️"}</div><div style="flex:1"><div style="font-weight:600;font-size:14px">${t.type==="checkout"?"Checked out":"Returned"} · ${t.kit}</div><div style="font-size:13px;color:var(--ink-mid)">${t.person}${t.event?" · "+t.event:""}</div>${t.notes?`<div style="font-size:12px;color:var(--ink-light);margin-top:2px">⚠️ ${t.notes}</div>`:""}</div><div style="font-size:12px;color:var(--ink-light);white-space:nowrap">${fmtT(t.timestamp)}</div></div>`).join(""));
-}
-
-function admTab(t){
-  el("adm-t1").classList.toggle("active",t==="req");el("adm-t2").classList.toggle("active",t==="reports");el("adm-t3").classList.toggle("active",t==="log");
-  el("adm-req").classList.toggle("hidden",t!=="req");el("adm-reports").classList.toggle("hidden",t!=="reports");el("adm-log").classList.toggle("hidden",t!=="log");
-}
-async function approveReq(id,kit){
-  if(!kit)return;
-  await apiCall({action:"updateReq",id,fields:{status:"approved",assignedKit:kit}},()=>{
-    const r=reqs.find(x=>x.id===id);r.status="approved";r.assignedKit=kit;renderAdmin();
   });
+
+  // Seed kits if Kits tab is empty
+  const kitsSh = ss.getSheetByName(TABS.kits);
+  if (kitsSh.getLastRow() < 2) {
+    kitsSh.appendRow(["kit-a","Outreach Kit A","available","","","","2026-02-28"]);
+    kitsSh.appendRow(["kit-b","Outreach Kit B","available","","","","2026-03-01"]);
+  }
 }
-async function denyReq(id){
-  await apiCall({action:"updateReq",id,fields:{status:"denied"}},()=>{
-    reqs.find(x=>x.id===id).status="denied";renderAdmin();
-  });
+
+// ── Response helper ───────────────────────────────────────────────
+function respond(data) {
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
 }
-async function flagKit(id){
-  kits.find(k=>k.id===id).status="needs-attention";
-  await apiCall({action:"saveKits",kits},()=>renderAdmin());
-}
-async function fixKit(id){
-  kits.find(k=>k.id===id).status="available";
-  await apiCa
