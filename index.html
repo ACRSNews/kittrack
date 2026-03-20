@@ -345,7 +345,7 @@
     <div style="font-size:40px;margin-bottom:12px">🎉</div>
     <h2>Report submitted!</h2>
     <p>Thank you for helping us track these items — we need this for reporting for certain grants and to assess and evaluate our overall outreach program.</p>
-    <p>If you'd like a copy of this data, message us at <a href="/cdn-cgi/l/email-protection#8de3ecf9e8efcdeceefffea3e2ffea" style="color:var(--pink)"><span class="__cf_email__" data-cfemail="127c7366777052737160613c7d6075">[email&#160;protected]</span></a>.</p>
+    <p id="rpt-contact-line"></p>
     <button class="btn-ghost" style="margin-top:8px" onclick="go('home')">Back to home</button>
   </div>
 </div>
@@ -373,7 +373,7 @@
   <div id="adm-log" class="hidden"></div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ================================================================
 // !! PASTE YOUR APPS SCRIPT URL BELOW !!
 // After deploying, replace the placeholder with your actual URL.
@@ -764,4 +764,14 @@ async function approveReq(id,kit){
 async function denyReq(id){
   await apiCall({action:"updateReq",id,fields:{status:"denied"}},()=>{
     reqs.find(x=>x.id===id).status="denied";renderAdmin();
-  })
+  })}
+async function flagKit(id){kits.find(k=>k.id===id).status="needs-attention";await apiCall({action:"saveKits",kits},()=>renderAdmin());}
+async function fixKit(id){kits.find(k=>k.id===id).status="available";await apiCall({action:"saveKits",kits},()=>renderAdmin());}
+
+// Render contact email via JS so Cloudflare can never obfuscate it
+(function(){const cl=document.getElementById("rpt-contact-line");if(cl){const e=["nateb","acrs.org"].join("@");cl.innerHTML='If you\'d like a copy of this data, message us at <a href="mailto:'+e+'" style="color:var(--pink)">'+e+'</a>.';}})();
+
+loadData();
+</script>
+</body>
+</html>
