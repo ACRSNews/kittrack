@@ -480,7 +480,7 @@ function go(v) {
   el("tab-admin").classList.toggle("active",v==="admin");
   if (v==="home"){el("v-home").classList.remove("hidden");loadData();}
   else if(v==="request"){el("v-request").classList.remove("hidden");el("req-form").classList.remove("hidden");el("req-ok").classList.add("hidden");}
-  else if(v==="cio"){el("v-cio").classList.remove("hidden");cioReset();}
+  else if(v==="cio"){el("v-cio").classList.remove("hidden");loadData().then(()=>cioReset());}
   else if(v==="report"||v==="rptpre"){
     el("v-report").classList.remove("hidden");
     el("rpt-form").classList.remove("hidden");el("rpt-ok").classList.add("hidden");
