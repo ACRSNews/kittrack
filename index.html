@@ -566,7 +566,7 @@ async function submitReq(){
     // mailto notification
     const subject=encodeURIComponent("New Kit Request: "+req.event);
     const body=encodeURIComponent("A new outreach kit request was submitted via KitTrack.\n\nName: "+req.name+"\nEmail: "+(req.email||"not provided")+"\nDepartment: "+(req.department||"")+"\nProgram: "+req.program+"\nEvent: "+req.event+"\nLocation: "+(req.location||"not provided")+"\nDate: "+req.dateNeeded+(req.startTime?" at "+req.startTime:"")+"\nReturn: "+(req.dateReturn||"")+(req.retTime?" at "+req.retTime:"")+"\nPopulation: "+(req.population||"")+"\n"+(req.notes?"Notes: "+req.notes+"\n":"")+"\nLog in to KitTrack to assign a kit and approve this request.");
-    window.location.href="mailto:nateb@acrs.org?subject="+subject+"&body="+body;
+    window.location.href="mailto:nateb@acrs.org,alliceb@acrs.org?subject="+subject+"&body="+body;
   });
   el("req-submit-btn").disabled=false;
 }
