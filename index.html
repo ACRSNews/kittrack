@@ -53,7 +53,7 @@
   .btn-danger{background:var(--red-faint);color:var(--red);border:1.5px solid var(--red);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer}
   .form-group{margin-bottom:18px}
   label{font-size:13px;font-weight:600;color:var(--ink-mid);display:block;margin-bottom:6px}
-  input[type=text],input[type=email],input[type=date],input[type=time],select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:15px;color:var(--ink);background:var(--white);outline:none;transition:border-color 0.15s}
+  input[type=text],input[type=email],input[type=date],input[type=time],input[type=number],select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:15px;color:var(--ink);background:var(--white);outline:none;transition:border-color 0.15s}
   input:focus,select:focus,textarea:focus{border-color:var(--pink)}
   textarea{resize:vertical;min-height:80px}
   select{appearance:none;cursor:pointer}
@@ -328,6 +328,11 @@
         <label>Who did you connect with at this event? *</label>
         <textarea id="rpt-population" placeholder="e.g. Unhoused community members, seniors, recent immigrants, general public..."></textarea>
       </div>
+      <div class="row">
+        <div class="form-group" style="flex:1"><label>How many people did you connect with? *</label><input type="number" id="rpt-connections" min="0" placeholder="e.g. 25" style="width:100%"></div>
+        <div class="form-group" style="flex:1"><label>Email list sign-ups *</label><input type="number" id="rpt-signups" min="0" placeholder="e.g. 10" style="width:100%"></div>
+      </div>
+      <div class="form-group"><label>Estimated total event attendance *</label><input type="number" id="rpt-total-attendance" min="0" placeholder="e.g. 150" style="width:100%"></div>
       <div class="form-group"><label>What went well? *</label><textarea id="rpt-well" placeholder="Community response, connections made..."></textarea></div>
       <div class="form-group"><label>Anything to improve? <span style="font-weight:400;color:var(--ink-light)">(optional)</span></label><textarea id="rpt-imp" placeholder="Logistics, materials, timing..."></textarea></div>
       <div class="form-group">
@@ -488,6 +493,7 @@ function go(v) {
     if(v==="rptpre"&&prefill){el("rpt-name").value=prefill.person||"";el("rpt-name").readOnly=true;el("rpt-event").value=prefill.event||"";el("rpt-event").readOnly=true;}
     else{el("rpt-name").readOnly=false;el("rpt-event").readOnly=false;rptAtt="";rptCond="good";el("rpt-population").value="";
       document.querySelectorAll(".toggle-group .toggle-btn").forEach(b=>b.classList.remove("selected"));
+      el("rpt-connections").value="";el("rpt-signups").value="";el("rpt-total-attendance").value="";
       ["good","minor","miss"].forEach(x=>el("c-"+x).classList.toggle("selected",x==="good"));
     }
   }
@@ -582,8 +588,8 @@ function exportRequests(){
   downloadCSV([header,...reqs.map(r=>[fmtT(r.submittedAt),r.name,r.email,r.department||"",r.program,r.event,r.location,r.dateNeeded,r.startTime,r.dateReturn,r.retTime||"",r.population||"",r.status,r.assignedKit||"",r.notes])],"ACRS_Kit_Requests_"+today()+".csv");
 }
 function exportReports(){
-  const header=["Submitted","Name","Event","Attendance","Population Served","Kit Condition","What Went Well","Areas to Improve"];
-  downloadCSV([header,...reports.map(r=>[fmtT(r.submittedAt),r.name,r.event,r.attendance,r.population||"",r.kitCondition,r.went,r.improve||""])],"ACRS_PostEvent_Reports_"+today()+".csv");
+  const header=["Submitted","Name","Event","Attendance (range)","Connections Made","Email Sign-ups","Total Attendance","Population Served","Kit Condition","What Went Well","Areas to Improve"];
+  downloadCSV([header,...reports.map(r=>[fmtT(r.submittedAt),r.name,r.event,r.attendance,r.connectionsCount??'',r.emailSignups??'',r.totalAttendance??'',r.population||"",r.kitCondition,r.went,r.improve||""])],"ACRS_PostEvent_Reports_"+today()+".csv");
 }
 
 // ================================================================
@@ -679,8 +685,10 @@ function pickAtt(b){document.querySelectorAll(".toggle-group .toggle-btn").forEa
 function pickCond(v){rptCond=v;["good","minor","miss"].forEach(x=>el("c-"+x).classList.toggle("selected",(v==="good"&&x==="good")||(v==="minor"&&x==="minor")||(v==="missing"&&x==="miss")));}
 async function submitRpt(){
   const n=el("rpt-name").value.trim(),e=el("rpt-event").value.trim(),w=el("rpt-well").value.trim(),pop=el("rpt-population").value.trim();
-  if(!n||!e||!rptAtt||!w||!pop){alert("Please fill in all required fields.");return;}
-  const report={id:"rpt"+Date.now(),name:n,event:e,attendance:rptAtt,population:pop,went:w,improve:el("rpt-imp").value.trim(),kitCondition:rptCond,submittedAt:new Date().toISOString()};
+  const conn=el("rpt-connections").value.trim(),signups=el("rpt-signups").value.trim(),totalAtt=el("rpt-total-attendance").value.trim();
+  if(!n||!e||!rptAtt||!w||!pop||!conn||!signups||!totalAtt){alert("Please fill in all required fields.");return;}
+  if(Number(conn)<0||Number(signups)<0||Number(totalAtt)<0){alert("Number fields cannot be negative.");return;}
+  const report={id:"rpt"+Date.now(),name:n,event:e,attendance:rptAtt,population:pop,connectionsCount:Number(conn),emailSignups:Number(signups),totalAttendance:Number(totalAtt),went:w,improve:el("rpt-imp").value.trim(),kitCondition:rptCond,submittedAt:new Date().toISOString()};
   el("rpt-submit-btn").disabled=true;
   await apiCall({action:"addReport",report},()=>{
     reports.push(report);
@@ -742,7 +750,7 @@ function renderReqs(){
 function renderRpts(){
   el("adm-reports").innerHTML=`<div class="section-header"><h2 style="margin:0">Post-Event Reports</h2><button class="btn-download" onclick="exportReports()">⬇ Export CSV</button></div>`+
   (reports.length===0?`<div class="empty-state">📋 No reports yet.<br><span style="font-size:12px">Reports submitted after events will appear here.</span></div>`:
-  reports.map(r=>`<div class="card"><div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px"><div><div style="font-weight:700;font-size:16px;margin-bottom:2px">${r.event}</div><div style="font-size:13px;color:var(--ink-mid)">Submitted by ${r.name} · ${fmtT(r.submittedAt)}</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span style="font-size:13px;padding:4px 10px;border-radius:20px;background:#f0edf5;color:var(--ink-mid);font-weight:600">👥 ${r.attendance}</span><span style="font-size:13px;padding:4px 10px;border-radius:20px;font-weight:600;background:${r.kitCondition==="good"?"var(--green-faint)":r.kitCondition==="minor"?"var(--amber-faint)":"var(--red-faint)"};color:${r.kitCondition==="good"?"var(--green)":r.kitCondition==="minor"?"var(--amber)":"var(--red)"}"> ${r.kitCondition==="good"?"✅ Kit OK":r.kitCondition==="minor"?"🔧 Minor issue":"⚠️ Missing items"}</span><button class="btn-danger" onclick="askDelete('rpt','${r.id}')" title="Delete">🗑</button></div></div>${r.population?`<div style="font-size:13px;color:var(--ink-mid);margin-bottom:6px">👥 <strong>Population:</strong> ${r.population}</div>`:""}<div style="font-size:13px;color:var(--ink-mid);margin-bottom:6px"><strong>What went well:</strong> ${r.went}</div>${r.improve?`<div style="font-size:13px;color:var(--ink-mid)"><strong>To improve:</strong> ${r.improve}</div>`:""}</div>`).join(""));
+  reports.map(r=>`<div class="card"><div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px"><div><div style="font-weight:700;font-size:16px;margin-bottom:2px">${r.event}</div><div style="font-size:13px;color:var(--ink-mid)">Submitted by ${r.name} · ${fmtT(r.submittedAt)}</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span style="font-size:13px;padding:4px 10px;border-radius:20px;background:#f0edf5;color:var(--ink-mid);font-weight:600">👥 ${r.attendance}</span><span style="font-size:13px;padding:4px 10px;border-radius:20px;font-weight:600;background:${r.kitCondition==="good"?"var(--green-faint)":r.kitCondition==="minor"?"var(--amber-faint)":"var(--red-faint)"};color:${r.kitCondition==="good"?"var(--green)":r.kitCondition==="minor"?"var(--amber)":"var(--red)"}"> ${r.kitCondition==="good"?"✅ Kit OK":r.kitCondition==="minor"?"🔧 Minor issue":"⚠️ Missing items"}</span><button class="btn-danger" onclick="askDelete('rpt','${r.id}')" title="Delete">🗑</button></div></div>${r.population?`<div style="font-size:13px;color:var(--ink-mid);margin-bottom:6px">👥 <strong>Population:</strong> ${r.population}</div>`:""}<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px">${r.connectionsCount!=null?`<span style="font-size:13px;color:var(--ink-mid)">🤝 <strong>Connections:</strong> ${r.connectionsCount}</span>`:""}${r.emailSignups!=null?`<span style="font-size:13px;color:var(--ink-mid)">✉️ <strong>Email sign-ups:</strong> ${r.emailSignups}</span>`:""}${r.totalAttendance!=null?`<span style="font-size:13px;color:var(--ink-mid)">🏟 <strong>Total attendance:</strong> ${r.totalAttendance}</span>`:""}</div><div style="font-size:13px;color:var(--ink-mid);margin-bottom:6px"><strong>What went well:</strong> ${r.went}</div>${r.improve?`<div style="font-size:13px;color:var(--ink-mid)"><strong>To improve:</strong> ${r.improve}</div>`:""}</div>`).join(""));
 }
 
 function renderLog(){
